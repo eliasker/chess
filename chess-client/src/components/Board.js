@@ -1,34 +1,43 @@
 import React, { useState } from 'react'
 import Chess from 'chess.js'
-
-let chess = new Chess()
+import Chessboard from 'chessboardjsx'
 
 const Board = () => {
-  const [moveInput, setMoveInput] = useState("")
+  const [game, setGame] = useState(new Chess())
+  const [moveInput, setMoveInput] = useState('')
+  const [position, setPosition] = useState(game.fen())
 
-
-  const playMove = () => {
-    if (!chess.game_over()) {
-      const moves = chess.moves()
+  const moveRandom = () => {
+    if (!game.game_over()) {
+      const moves = game.moves()
       const move = moves[Math.floor(Math.random() * moves.length)]
-      chess.move(move)
-      console.log(chess.ascii())
+      game.move(move)
+      setPosition(game.fen())
     }
   }
 
-  const reset = () => chess = new Chess()
-  const listMoves = () => console.log(chess.moves())
+  const reset = () => {
+    setGame(new Chess())
+    setPosition(game.fen())
+  }
+  const listMoves = () => console.log(game.moves())
 
   const playSelectedMove = event => {
     event.preventDefault()
-    chess.move(moveInput)
-    setMoveInput("")
-    console.log(chess.ascii())
+    game.move(moveInput)
+    setPosition(game.fen())
+    setMoveInput('')
+  }
+
+  const handleMove = (move) => {
+    if (game.move(move)) {
+      setPosition(game.fen())
+    }
   }
 
   return (
     <div>
-      <button onClick={() => playMove()}>Random move</button>
+      <button onClick={() => moveRandom()}>Random move</button>
       <button onClick={() => reset()}>Reset</button>
       <button onClick={() => listMoves()}>List moves</button>
       <form onSubmit={e => playSelectedMove(e)}>
@@ -36,6 +45,20 @@ const Board = () => {
         <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
         <input type="submit" />
       </form>
+
+      <div>
+        <Chessboard
+          width={400} position={position}
+          onDrop={(move) =>
+            handleMove({
+              from: move.sourceSquare,
+              to: move.targetSquare,
+              promotion: 'q'
+            })
+          }
+        />
+      </div>
+
     </div>
   )
 }
