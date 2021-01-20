@@ -1,0 +1,16 @@
+{
+  "name": "chess-server",
+  "version": "0.0.1",
+  "description": "server for chess application",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  }
+}
