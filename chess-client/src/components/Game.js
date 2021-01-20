@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
-const Board = () => {
-  const [game, setGame] = useState(new Chess())
+let game = new Chess()
+
+const Game = () => {
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(game.fen())
 
@@ -16,10 +17,12 @@ const Board = () => {
     }
   }
 
+  // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   const reset = () => {
-    setGame(new Chess())
+    game = new Chess()
     setPosition(game.fen())
   }
+
   const listMoves = () => console.log(game.moves())
 
   const playSelectedMove = event => {
@@ -58,9 +61,9 @@ const Board = () => {
           }
         />
       </div>
-
+      {game.game_over() ? <p>game over</p> : null}
     </div>
   )
 }
 
-export default Board;
+export default Game;
