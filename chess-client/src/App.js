@@ -1,5 +1,8 @@
+import React, { useEffect } from 'react'
+
 import Game from './components/Game'
 import './App.css'
+
 
 const App = () => {
   return (
@@ -9,4 +12,4 @@ const App = () => {
   )
 }
 
-export default App;
+export default App
