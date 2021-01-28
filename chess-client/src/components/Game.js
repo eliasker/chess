@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import Chessboard from 'chessboardjsx'
-import io from 'socket.io-client'
-
-const ENDPOINT = 'http://localhost:3001/'
-let socket;
 
 const Game = ({ game, p1, p2 }) => {
   const [moveInput, setMoveInput] = useState('')

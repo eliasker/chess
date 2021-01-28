@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import Chess from 'chess.js'
+import { v4 as uuidv4 } from 'uuid'
 
 import Game from './components/Game'
 import './App.css'
 import GameList from './components/GameList'
 
-const user = { userID: "0", username: "Guest#0" }
+// TODO: name from server
+const user = { userID: uuidv4(), username: "Guest#0" }
 
 // TODO: Get gameList from server
 // TODO: routing
