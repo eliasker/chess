@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 import io from 'socket.io-client'
 
-//TODO: socket event for closing game
 const ENDPOINT = 'http://localhost:3001/'
 let socket;
 

@@ -3,6 +3,7 @@ import Chess from 'chess.js'
 
 import Game from './components/Game'
 import './App.css'
+import GameList from './components/GameList'
 
 const user = { userID: "0", username: "Guest#0" }
 
@@ -11,11 +12,6 @@ const user = { userID: "0", username: "Guest#0" }
 const App = () => {
   const [gameList, setGameList] = useState([])
   const [selectedGame, setSelectedGame] = useState(null)
-
-  const selectGame = game => {
-    setSelectedGame(game)
-    console.log('selecting', game.id, game.chess.fen())
-  }
 
   const handleCreate = () => {
     // TODO: socket event new game
@@ -33,27 +29,18 @@ const App = () => {
     )
   }
 
-  // TODO: separate component 
-  // TODO: num of players joined
-  // 1/2 or 2/2, prevent joining if 2 players?
-  const listGames = () => {
-    console.log(gameList)
-    return (
-      <ul>
-        {gameList.map(game =>
-          <li key={game.id} onClick={() => selectGame(game)}>Game {game.id}</li>
-        )}
-      </ul>
-    )
-  }
-
   return (
     <div>
       <CreateGameButton />
       {gameList.length === 0 ?
-        <p>no games at the moment</p> : listGames()}
+        <p>no games at the moment</p>
+        :
+        <GameList games={gameList} setSelectedGame={setSelectedGame} />}
+
       {selectedGame === null ?
-        null : <Game game={selectedGame.chess} p1={selectedGame.p1} p2={selectedGame.p2} />}
+        null
+        :
+        <Game game={selectedGame.chess} p1={selectedGame.p1} p2={selectedGame.p2} />}
     </div>
   )
 }
