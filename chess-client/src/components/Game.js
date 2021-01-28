@@ -3,15 +3,18 @@ import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 import io from 'socket.io-client'
 
-// rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+//TODO: socket event for closing game
 const ENDPOINT = 'http://localhost:3001/'
 let socket;
-let game = new Chess()
 
-const Game = () => {
+const Game = ({ game, p1, p2 }) => {
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(game.fen())
 
+  // useEffect that updates gameboard when selected game is changed 
+  useEffect(() => { setPosition(game.fen()) }, [game])
+
+  /*
   useEffect(() => {
     socket = io(ENDPOINT)
     socket.emit('join', () => console.log(socket.id))
@@ -24,10 +27,10 @@ const Game = () => {
       setPosition(game.fen())
     })
   }, [])
-
+*/
   const broadcastFen = fen => {
     console.log('broadcasting ', fen)
-    socket.emit('move', fen)
+    //socket.emit('move', fen)
   }
 
   const moveRandom = () => {
@@ -43,7 +46,7 @@ const Game = () => {
   }
 
   const reset = () => {
-    game = new Chess()
+    game.reset()
     setPosition(game.fen())
     broadcastFen(game.fen())
   }
@@ -68,17 +71,18 @@ const Game = () => {
   }
 
   return (
-    <div>
-      <button onClick={() => moveRandom()}>Random move</button>
-      <button onClick={() => reset()}>Reset</button>
-      <button onClick={() => listMoves()}>List moves</button>
-      <form onSubmit={e => playSelectedMove(e)}>
-        <p>Enter: move</p>
-        <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
-        <input type="submit" />
-      </form>
+    <div className="center-container">
+      <div className="center-horizontal">
 
-      <div>
+        <button onClick={() => moveRandom()}>Random move</button>
+        <button onClick={() => reset()}>Reset</button>
+        <button onClick={() => listMoves()}>List moves</button>
+        <form onSubmit={e => playSelectedMove(e)}>
+          <p>Enter: move</p>
+          <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
+          <input type="submit" />
+        </form>
+        <br />
         <Chessboard
           width={400} position={position}
           onDrop={(move) =>
@@ -89,8 +93,8 @@ const Game = () => {
             })
           }
         />
+        {game.game_over() ? <p>game over</p> : null}
       </div>
-      {game.game_over() ? <p>game over</p> : null}
     </div>
   )
 }
