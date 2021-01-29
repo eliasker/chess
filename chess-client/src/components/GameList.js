@@ -12,7 +12,7 @@ const GameList = ({ games, setSelectedGame }) => {
   return (
     <ul>
       {games.map(game =>
-        <li key={game.id} onClick={() => selectGame(game)}>Game {game.id}</li>
+        <li key={game.id} onClick={() => selectGame(game)}>Game {game.id.slice(0,4)}</li>
       )}
     </ul>
   )

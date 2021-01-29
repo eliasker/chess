@@ -1,24 +1,39 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Chess from 'chess.js'
 import { v4 as uuidv4 } from 'uuid'
 
 import Game from './components/Game'
 import './App.css'
 import GameList from './components/GameList'
+import SocketHook from './service/SocketHook'
 
-// TODO: name from server
-const user = { userID: uuidv4(), username: "Guest#0" }
+const id = uuidv4()
+const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 
 // TODO: Get gameList from server
 // TODO: routing
 const App = () => {
+  //setGameList(gameList.set(newGameID, newGameObject))
   const [gameList, setGameList] = useState([])
   const [selectedGame, setSelectedGame] = useState(null)
+  const { connectedUsers, currentGames } = SocketHook(user.userID, user.username)
+
+  useEffect(() => {
+    console.log(connectedUsers)
+  }, [connectedUsers])
+
+  useEffect(() => {
+    setGameList(currentGames)
+  }, [currentGames])
 
   const handleCreate = () => {
     // TODO: socket event new game
     let newGame = new Chess()
-    const newGameRoom = { id: gameList.length + 1, p1: user, p2: null, chess: newGame }
+    const newGameRoom = {
+      id: uuidv4(),
+      p1: user, p2: null,
+      chess: newGame
+    }
     setGameList([...gameList, newGameRoom])
     setSelectedGame(newGameRoom)
   }
