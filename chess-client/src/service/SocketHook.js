@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import io from 'socket.io-client'
+import socketIOClient from 'socket.io-client'
 
 const ENDPOINT = 'http://localhost:3001/'
 
@@ -16,7 +16,7 @@ const SocketHook = (userID, username) => {
   const socket = useRef()
 
   useEffect(() => {
-    socket.current = io(ENDPOINT)
+    socket.current = socketIOClient(ENDPOINT)
     socket.current.emit('join server', { userID: userID, username: username })
     socket.current.on('update users', data => console.log(data))
 

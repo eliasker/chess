@@ -2,8 +2,8 @@ const express = require('express')
 const path = require('path')
 const app = express()
 const http = require('http').Server(app)
-const io = require('socket.io')(http)
-const PORT = 3001 // TODO: add process.env variable
+const io = require('socket.io')(http, { cors: { origin: "*" } })
+const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 
 let userCount = 0
 
@@ -22,8 +22,7 @@ const connectedUsers = []
 io.on('connection', socket => {
   userCount++
   const current = userCount
-  console.log(`user ${current} connected`)
-
+  
   socket.on('disconnect', (userID) => {
     const index = indexOfObject(connectedUsers, userID)
     removeItemAtIndex(connectedUsers, index)
@@ -46,14 +45,14 @@ io.on('connection', socket => {
   socket.on('create game', (newGame) => {
     games.push(newGame)
     io.broadcast.emit('new game started', games)
-    console.log('new game started:',games)
+    console.log('new game started:', games)
   })
 
   socket.on('close game', (gameID) => {
     const index = indexOfObject(games, gameID)
     removeItemAtIndex(games, index)
     io.broadcast.emit('game closed', games)
-    console.log('game ended:',games)
+    console.log('game ended:', games)
   })
 
   // TODO: make game specific
@@ -63,12 +62,13 @@ io.on('connection', socket => {
   })
 })
 
-
+/*
 app.use(express.static(path.resolve(__dirname, '../chess-client/build')))
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../chess-client/build', 'index.html'))
 })
+*/
 
 http.listen(PORT, () => {
   console.log(`listening on port ${PORT}`)
