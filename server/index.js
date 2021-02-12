@@ -7,34 +7,24 @@ const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 
 let userCount = 0
 
-const indexOfObject = (array, id) => {
-  const found = array.find(item => item.id === id)
-  return found ? array.indexOf(found) : -1
-}
+const games = {}
+const connectedUsers = {}
 
-const removeItemAtIndex = (array, index) => array.splice(index, 1)
-
-const games = []
-const connectedUsers = []
-
-// TODO: users joining / leaving game
-// Socket events
 io.on('connection', socket => {
   userCount++
   const current = userCount
-  
+
   socket.on('disconnect', (userID) => {
-    const index = indexOfObject(connectedUsers, userID)
-    removeItemAtIndex(connectedUsers, index)
+    delete connectedUsers[userID]
     userCount--
     io.emit('update users', connectedUsers)
     console.log('left server, online: ', connectedUsers)
   })
 
   socket.on('join server', (user) => {
-    connectedUsers.push(user)
+    connectedUsers[user.userID] = user
     io.emit('update users', connectedUsers)
-    console.log('joined, online: ', connectedUsers)
+    console.log('joined, online: ', Object.keys(connectedUsers).length)
   })
 
   socket.on('chat message', (msg) => {
@@ -42,17 +32,14 @@ io.on('connection', socket => {
     io.emit('chat message: ', msg)
   })
 
-  socket.on('create game', (newGame) => {
-    games.push(newGame)
-    io.broadcast.emit('new game started', games)
-    console.log('new game started:', games)
+  socket.on('create game', (newGameRoom) => {
+    games[newGameRoom.id] = newGameRoom
+    io.emit('update games', games)
   })
 
   socket.on('close game', (gameID) => {
-    const index = indexOfObject(games, gameID)
-    removeItemAtIndex(games, index)
-    io.broadcast.emit('game closed', games)
-    console.log('game ended:', games)
+    delete games[gameID]
+    io.emit('update games', games)
   })
 
   // TODO: make game specific

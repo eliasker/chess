@@ -18,12 +18,26 @@ const SocketHook = (userID, username) => {
   useEffect(() => {
     socket.current = socketIOClient(ENDPOINT)
     socket.current.emit('join server', { userID: userID, username: username })
-    socket.current.on('update users', data => console.log(data))
+    socket.current.on('update users', newUserList => {
+      setConnectedUsers(newUserList)
+      console.log('users', newUserList)
+    })
+
+    socket.current.on('update games', newGameList => {
+      setCurrentGames(newGameList)
+      console.log('games', newGameList)
+    })
 
     return () => { socket.current.disconnect(userID) }
   }, [userID, username])
 
-  return { connectedUsers, currentGames }
+
+  const emitCreateGame = (newGameRoom) => {
+    console.log('emit create game', newGameRoom)
+    socket.current.emit('create game', newGameRoom)
+  }
+
+  return { connectedUsers, currentGames, emitCreateGame }
 
 }
 
