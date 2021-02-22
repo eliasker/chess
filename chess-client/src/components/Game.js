@@ -7,14 +7,23 @@ let game = new Chess()
 const Game = ({ id, gamestate, emitState }) => {
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(null)
+  const [moving, setMoving] = useState("Stop")
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
-    console.log(game.fen())
     try {
+      console.log('change to ', gamestate)
       game.load(gamestate)
+      setPosition(game.fen())
     } catch (e) { console.log(e) }
   }, [gamestate])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (moving === "Start") moveRandom()
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [moving])
 
   const broadcastFen = fen => {
     emitState(id, fen)
@@ -55,15 +64,21 @@ const Game = ({ id, gamestate, emitState }) => {
     }
   }
 
+  const startStop = () => {
+    if (moving === "Start") setMoving("Stop")
+    else setMoving("Start")
+  }
+
   return (
     <div className="center-container">
       <div className="center-horizontal">
 
         <button onClick={() => moveRandom()}>Random move</button>
+        <button onClick={() => startStop()}>{moving === "Start" ? "Stop" : "Start"} moving</button>
         <button onClick={() => reset()}>Reset</button>
         <button onClick={() => listMoves()}>List moves</button>
         <form onSubmit={e => playSelectedMove(e)}>
-          <p>Enter: move</p>
+          <p>Enter move</p>
           <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
           <input type="submit" />
         </form>

@@ -14,12 +14,13 @@ const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 // TODO: routing
 const App = () => {
   const [gameList, setGameList] = useState({})
-  const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedGame, setSelectedGame] = useState({ id: null, state: null })
   const {
     connectedUsers,
     currentGames,
     emitCreateGame,
-    emitState
+    emitState,
+    incMove
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
@@ -28,7 +29,11 @@ const App = () => {
 
   useEffect(() => {
     setGameList(currentGames)
-  }, [currentGames])
+    if (incMove.gameID === selectedGame.id) {
+      console.log('incoming', incMove.gameState)
+      setSelectedGame({ ...selectedGame, state: incMove.gameState })
+    }
+  }, [currentGames, incMove])
 
   const handleCreate = () => {
     // TODO: socket event new game

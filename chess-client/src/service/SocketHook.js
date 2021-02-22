@@ -13,6 +13,7 @@ const ENDPOINT = 'http://localhost:3001/'
 const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
+  const [incMove, setIncMove] = useState({ gameID: null, gameState: null })
   const socket = useRef()
 
   useEffect(() => {
@@ -24,9 +25,10 @@ const SocketHook = (userID, username) => {
       //console.log('users', newUserList)
     })
 
-    socket.current.on('update games', newGameList => {
+    socket.current.on('update games', (newGameList, gameID, newState) => {
       setCurrentGames(newGameList)
-      //console.log('games', newGameList)
+      setIncMove({ gameID: gameID, gameState: newState })
+      //console.log('update received', newGameList)
     })
 
     socket.current.on('move', (gameID, newState) => {
@@ -48,7 +50,7 @@ const SocketHook = (userID, username) => {
     socket.current.emit('move', gameID, newState)
   }
 
-  return { connectedUsers, currentGames, emitCreateGame, emitState }
+  return { connectedUsers, currentGames, emitCreateGame, emitState, incMove }
 
 }
 

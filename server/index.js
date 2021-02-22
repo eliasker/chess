@@ -11,7 +11,7 @@ const connectedUsers = {}
 
 io.on('connection', socket => {
 
-  socket.emit('update games', games)
+  socket.emit('update games', games, null, null)
   socket.emit('update users', connectedUsers)
 
   socket.on('disconnect', (userID) => {
@@ -40,7 +40,7 @@ io.on('connection', socket => {
     games[gameID] = { ...games[gameID], state: newState }
     const str2 = games[gameID].state
     console.log(str1, '\n', str2, '\n')
-    io.emit('update games', games)
+    io.emit('update games', games, gameID, newState)
   })
 
 })
