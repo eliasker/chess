@@ -1,30 +1,23 @@
 import React, { useState, useEffect } from 'react'
+import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
-const Game = ({ game, p1, p2 }) => {
+let game = new Chess()
+
+const Game = ({ id, gamestate, emitState }) => {
   const [moveInput, setMoveInput] = useState('')
-  const [position, setPosition] = useState(game.fen())
+  const [position, setPosition] = useState(null)
 
   // useEffect that updates gameboard when selected game is changed 
-  useEffect(() => { setPosition(game.fen()) }, [game])
-
-  /*
   useEffect(() => {
-    socket = io(ENDPOINT)
-    socket.emit('join', () => console.log(socket.id))
-  }, [])
+    console.log(game.fen())
+    try {
+      game.load(gamestate)
+    } catch (e) { console.log(e) }
+  }, [gamestate])
 
-  useEffect(() => {
-    socket.on('move', (fen) => {
-      console.log('incoming move', fen)
-      game.load(fen)
-      setPosition(game.fen())
-    })
-  }, [])
-*/
   const broadcastFen = fen => {
-    console.log('broadcasting ', fen)
-    //socket.emit('move', fen)
+    emitState(id, fen)
   }
 
   const moveRandom = () => {
@@ -33,8 +26,6 @@ const Game = ({ game, p1, p2 }) => {
       const move = moves[Math.floor(Math.random() * moves.length)]
       game.move(move)
       setPosition(game.fen())
-      console.log('moverandom', move)
-
       broadcastFen(game.fen())
     }
   }

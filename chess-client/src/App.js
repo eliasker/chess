@@ -18,17 +18,16 @@ const App = () => {
   const {
     connectedUsers,
     currentGames,
-    emitCreateGame
+    emitCreateGame,
+    emitState
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
     // TODO: create visual userlist component
-    console.log('users', connectedUsers)
   }, [connectedUsers])
 
   useEffect(() => {
     setGameList(currentGames)
-    console.log('games', currentGames)
   }, [currentGames])
 
   const handleCreate = () => {
@@ -37,9 +36,9 @@ const App = () => {
     const newGameRoom = {
       id: uuidv4(),
       p1: user, p2: null,
-      chess: newGame
+      state: newGame.fen()
     }
-    //setGameList([...gameList, newGameRoom])
+
     const newGameList = gameList
     newGameList[newGameRoom.id] = newGameRoom
     setGameList(newGameList)
@@ -64,10 +63,10 @@ const App = () => {
         :
         <GameList games={gameList} setSelectedGame={setSelectedGame} />}
 
-      {selectedGame === null ?
-        null
+      {(selectedGame === null || selectedGame === undefined) ?
+        <p>no selected</p>
         :
-        <Game game={selectedGame.chess} p1={selectedGame.p1} p2={selectedGame.p2} />}
+        <Game id={selectedGame.id} gamestate={selectedGame.state} emitState={emitState} />}
     </div>
   )
 }

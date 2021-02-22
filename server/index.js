@@ -5,31 +5,24 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
 const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 
-let userCount = 0
-
+// game(id, state)  game(id, state, players)
 const games = {}
 const connectedUsers = {}
 
 io.on('connection', socket => {
-  userCount++
-  const current = userCount
+
+  socket.emit('update games', games)
+  socket.emit('update users', connectedUsers)
 
   socket.on('disconnect', (userID) => {
     delete connectedUsers[userID]
-    userCount--
     io.emit('update users', connectedUsers)
-    console.log('left server, online: ', connectedUsers)
+
   })
 
   socket.on('join server', (user) => {
     connectedUsers[user.userID] = user
     io.emit('update users', connectedUsers)
-    console.log('joined, online: ', Object.keys(connectedUsers).length)
-  })
-
-  socket.on('chat message', (msg) => {
-    console.log(`user ${current}: ${msg}`)
-    io.emit('chat message: ', msg)
   })
 
   socket.on('create game', (newGameRoom) => {
@@ -42,11 +35,14 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
-  // TODO: make game specific
-  socket.on('game move', (fen) => {
-    console.log(`user ${current} sent this fenstate ${fen}`)
-    io.emit('game move', fen)
+  socket.on('move', (gameID, newState) => {
+    const str1 = games[gameID].state
+    games[gameID] = { ...games[gameID], state: newState }
+    const str2 = games[gameID].state
+    console.log(str1, '\n', str2, '\n')
+    io.emit('update games', games)
   })
+
 })
 
 /*

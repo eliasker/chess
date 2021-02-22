@@ -5,7 +5,7 @@ import React from 'react'
 const GameList = ({ games, setSelectedGame }) => {
   const selectGame = game => {
     setSelectedGame(game)
-    console.log('selecting', game.id)
+    console.log('selecting', game.state)
   }
   return (
     <ul>
