@@ -13,19 +13,28 @@ const ENDPOINT = 'http://localhost:3001/'
 const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
+  const [incMove, setIncMove] = useState({ gameID: null, gameState: null })
   const socket = useRef()
 
   useEffect(() => {
     socket.current = socketIOClient(ENDPOINT)
     socket.current.emit('join server', { userID: userID, username: username })
+
     socket.current.on('update users', newUserList => {
       setConnectedUsers(newUserList)
-      console.log('users', newUserList)
+      //console.log('users', newUserList)
     })
 
-    socket.current.on('update games', newGameList => {
+    socket.current.on('update games', (newGameList, gameID, newState) => {
       setCurrentGames(newGameList)
-      console.log('games', newGameList)
+      setIncMove({ gameID: gameID, gameState: newState })
+      //console.log('update received', newGameList)
+    })
+
+    socket.current.on('move', (gameID, newState) => {
+      const updatedGames = currentGames
+      updatedGames[gameID].state = newState
+      setCurrentGames(updatedGames)
     })
 
     return () => { socket.current.disconnect(userID) }
@@ -33,11 +42,15 @@ const SocketHook = (userID, username) => {
 
 
   const emitCreateGame = (newGameRoom) => {
-    console.log('emit create game', newGameRoom)
+    //console.log('emit create game', newGameRoom)
     socket.current.emit('create game', newGameRoom)
   }
 
-  return { connectedUsers, currentGames, emitCreateGame }
+  const emitState = (gameID, newState) => {
+    socket.current.emit('move', gameID, newState)
+  }
+
+  return { connectedUsers, currentGames, emitCreateGame, emitState, incMove }
 
 }
 

@@ -14,22 +14,26 @@ const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 // TODO: routing
 const App = () => {
   const [gameList, setGameList] = useState({})
-  const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedGame, setSelectedGame] = useState({ id: null, state: null })
   const {
     connectedUsers,
     currentGames,
-    emitCreateGame
+    emitCreateGame,
+    emitState,
+    incMove
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
     // TODO: create visual userlist component
-    console.log('users', connectedUsers)
   }, [connectedUsers])
 
   useEffect(() => {
     setGameList(currentGames)
-    console.log('games', currentGames)
-  }, [currentGames])
+    if (incMove.gameID === selectedGame.id) {
+      console.log('incoming', incMove.gameState)
+      setSelectedGame({ ...selectedGame, state: incMove.gameState })
+    }
+  }, [currentGames, incMove])
 
   const handleCreate = () => {
     // TODO: socket event new game
@@ -37,9 +41,9 @@ const App = () => {
     const newGameRoom = {
       id: uuidv4(),
       p1: user, p2: null,
-      chess: newGame
+      state: newGame.fen()
     }
-    //setGameList([...gameList, newGameRoom])
+
     const newGameList = gameList
     newGameList[newGameRoom.id] = newGameRoom
     setGameList(newGameList)
@@ -64,10 +68,10 @@ const App = () => {
         :
         <GameList games={gameList} setSelectedGame={setSelectedGame} />}
 
-      {selectedGame === null ?
-        null
+      {(selectedGame === null || selectedGame === undefined) ?
+        <p>no selected</p>
         :
-        <Game game={selectedGame.chess} p1={selectedGame.p1} p2={selectedGame.p2} />}
+        <Game id={selectedGame.id} gamestate={selectedGame.state} emitState={emitState} />}
     </div>
   )
 }
