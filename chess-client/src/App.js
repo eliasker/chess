@@ -20,7 +20,8 @@ const App = () => {
     currentGames,
     emitCreateGame,
     emitState,
-    incMove
+    incMove,
+    emitEnd
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
@@ -71,7 +72,7 @@ const App = () => {
       {(selectedGame === null || selectedGame === undefined) ?
         <p>no selected</p>
         :
-        <Game id={selectedGame.id} gamestate={selectedGame.state} emitState={emitState} />}
+        <Game id={selectedGame.id} gamestate={selectedGame.state} emitState={emitState} emitEnd={emitEnd} setSelectedGame={setSelectedGame} />}
     </div>
   )
 }

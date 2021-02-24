@@ -50,7 +50,11 @@ const SocketHook = (userID, username) => {
     socket.current.emit('move', gameID, newState)
   }
 
-  return { connectedUsers, currentGames, emitCreateGame, emitState, incMove }
+  const emitEnd = (gameID) => {
+    socket.current.emit('close game', gameID)
+  }
+
+  return { connectedUsers, currentGames, emitCreateGame, emitState, incMove, emitEnd }
 
 }
 
