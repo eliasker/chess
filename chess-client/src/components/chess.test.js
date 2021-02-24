@@ -30,8 +30,22 @@ describe('Checkmate: Black loses when white rook moves to d8', () => {
   })
 })
 
-describe('En passant:', () => {
+describe('En passant: After black moves to a5', () => {
+  // Boardstate where after black pawn moves from a7 to a5
+  // White can en passant capture from b5 to a6 
+  const fen2 = "4k3/p2p2p1/8/1P6/4P2P/8/8/4K3 b - - 0 4"
+  const game2 = new Chess()
+  game2.load(fen2)
 
+  test('White has option to capture with b5 pawn', () => {
+    game2.move("a5")
+    expect(game2.moves().includes("bxa6")).toBe(true)
+  })
+
+  test('After white captures a5, black no longer has pieces on "a" file', () => {
+    game2.move("bxa6")
+    expect(game2.moves().filter(move => move.includes("a")).length).toBe(0)
+  })
 })
 
 describe('Stalemate --> draw', () => {
