@@ -8,6 +8,7 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
+  const [player, setPlayer] = useState('white')
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
@@ -71,6 +72,10 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
     setSelectedGame({ id: null, state: null })
   }
 
+  const rotateBoard = () => {
+    player === "white" ? setPlayer("black") : setPlayer("white")
+  }
+
   return (
     <div className="center-container">
       <div className="center-horizontal">
@@ -80,6 +85,7 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
         <button onClick={() => reset()}>Reset</button>
         <button onClick={() => listMoves()}>List moves</button>
         <button onClick={() => endGame()}>End game</button>
+        <button onClick={() => rotateBoard()}>Flip board</button>
         <form onSubmit={e => playSelectedMove(e)}>
           <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
           <input type="submit" />
@@ -87,6 +93,7 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
         <br />
         <Chessboard
           width={400} position={position}
+          orientation={player}
           onDrop={(move) =>
             handleMove({
               from: move.sourceSquare,
