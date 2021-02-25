@@ -31,13 +31,11 @@ const App = () => {
   useEffect(() => {
     setGameList(currentGames)
     if (incMove.gameID === selectedGame.id) {
-      console.log('incoming', incMove.gameState)
       setSelectedGame({ ...selectedGame, state: incMove.gameState })
     }
   }, [currentGames, incMove])
 
   const handleCreate = () => {
-    // TODO: socket event new game
     let newGame = new Chess()
     const newGameRoom = {
       id: uuidv4(),

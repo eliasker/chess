@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require('path')
+const { connected } = require('process')
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
@@ -9,18 +10,16 @@ const games = {}
 const connectedUsers = {}
 
 io.on('connection', socket => {
-
   socket.emit('update games', games, null, null)
   socket.emit('update users', connectedUsers)
 
-  socket.on('disconnect', (userID) => {
-    delete connectedUsers[userID]
+  socket.on('disconnect', () => {
+    delete connectedUsers[socket.id]
     io.emit('update users', connectedUsers)
-
   })
 
   socket.on('join server', (user) => {
-    connectedUsers[user.userID] = user
+    connectedUsers[socket.id] = user
     io.emit('update users', connectedUsers)
   })
 

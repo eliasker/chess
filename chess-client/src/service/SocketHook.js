@@ -17,6 +17,7 @@ const SocketHook = (userID, username) => {
     socket.current = socketIOClient(ENDPOINT)
     socket.current.emit('join server', { userID: userID, username: username })
 
+    // users are mapped newUserList[socket.id] = user
     socket.current.on('update users', newUserList => {
       setConnectedUsers(newUserList)
     })
@@ -36,7 +37,7 @@ const SocketHook = (userID, username) => {
       setCurrentGames(newGameList)
     })
 
-    return () => { socket.current.disconnect(userID) }
+    return () => { socket.current.disconnect() }
   }, [userID, username])
 
 
