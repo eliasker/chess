@@ -12,7 +12,6 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
     try {
-      console.log('change to ', gamestate)
       game.load(gamestate)
       setPosition(game.fen())
     } catch (e) { console.log(e) }
@@ -48,7 +47,6 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
   const listMoves = () => console.log(game.moves())
 
   const playSelectedMove = event => {
-    console.log('playselectedmove', moveInput)
     event.preventDefault()
     game.move(moveInput)
     setPosition(game.fen())
@@ -57,7 +55,6 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
   }
 
   const handleMove = (move) => {
-    console.log('handlemove', move)
     if (game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())
@@ -84,7 +81,6 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
         <button onClick={() => listMoves()}>List moves</button>
         <button onClick={() => endGame()}>End game</button>
         <form onSubmit={e => playSelectedMove(e)}>
-          <p>Enter move</p>
           <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
           <input type="submit" />
         </form>

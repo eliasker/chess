@@ -5,7 +5,6 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
 const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 
-// game(id, state)  game(id, state, players)
 const games = {}
 const connectedUsers = {}
 
@@ -38,10 +37,9 @@ io.on('connection', socket => {
   socket.on('move', (gameID, newState) => {
     // TODO: error if game not found
     if (games[gameID] === undefined) return
-    const str1 = games[gameID].state
     games[gameID] = { ...games[gameID], state: newState }
     const str2 = games[gameID].state
-    console.log(str1, '\n', str2, '\n')
+    console.log(gameID, '\n', str2, '\n')
     io.emit('update games', games, gameID, newState)
   })
 
