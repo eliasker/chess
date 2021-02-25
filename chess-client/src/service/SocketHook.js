@@ -37,6 +37,10 @@ const SocketHook = (userID, username) => {
       setCurrentGames(updatedGames)
     })
 
+    socket.current.on('close game', (newGameList) => {
+      setCurrentGames(newGameList)
+    })
+
     return () => { socket.current.disconnect(userID) }
   }, [userID, username])
 

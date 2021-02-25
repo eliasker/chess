@@ -37,6 +37,7 @@ io.on('connection', socket => {
 
   socket.on('move', (gameID, newState) => {
     // TODO: error if game not found
+    if (games[gameID] === undefined) return
     const str1 = games[gameID].state
     games[gameID] = { ...games[gameID], state: newState }
     const str2 = games[gameID].state

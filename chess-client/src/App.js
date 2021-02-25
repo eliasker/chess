@@ -72,7 +72,14 @@ const App = () => {
       {(selectedGame === null || selectedGame === undefined) ?
         <p>no selected</p>
         :
-        <Game id={selectedGame.id} gamestate={selectedGame.state} emitState={emitState} emitEnd={emitEnd} setSelectedGame={setSelectedGame} />}
+        <Game
+          id={selectedGame.id}
+          gamestate={selectedGame.state}
+          emitState={emitState}
+          emitEnd={emitEnd}
+          setSelectedGame={setSelectedGame}
+        />
+      }
     </div>
   )
 }
