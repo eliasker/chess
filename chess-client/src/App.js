@@ -26,6 +26,7 @@ const App = () => {
 
   useEffect(() => {
     // TODO: create visual userlist component
+    console.log()
   }, [connectedUsers])
 
   useEffect(() => {
@@ -61,13 +62,14 @@ const App = () => {
   return (
     <div>
       <p>logged in as {user.username}</p>
+      <p>players online: {Object.keys(connectedUsers).length}</p>
       <CreateGameButton />
       {Object.keys(gameList).length === 0 ?
         <p>no games at the moment</p>
         :
         <GameList games={gameList} setSelectedGame={setSelectedGame} />}
 
-      {(selectedGame === null || selectedGame === undefined) ?
+      {(selectedGame.state === null) ?
         <p>no selected</p>
         :
         <Game
