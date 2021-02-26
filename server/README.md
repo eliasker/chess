@@ -10,5 +10,5 @@ Start the server
 Optionally: start the server using nodemon (when developing)
 
 
-![Client-server diagram](/src/img/diagram.png "Client-server diagram")
+![Client-server diagram](./src/img/diagram.PNG "Client-server diagram")
 After each event the server emits the updated object.
