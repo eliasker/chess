@@ -21,6 +21,7 @@ const App = () => {
     emitCreateGame,
     emitState,
     incMove,
+    emitJoin,
     emitEnd
   } = SocketHook(user.userID, user.username)
 
@@ -39,8 +40,10 @@ const App = () => {
   const handleCreate = () => {
     let newGame = new Chess()
     const newGameRoom = {
+      hostID: user.userID,
+      playerID: null,
+      connections: [],
       id: uuidv4(),
-      p1: user, p2: null,
       state: newGame.fen()
     }
 
@@ -64,10 +67,17 @@ const App = () => {
       <p>logged in as {user.username}</p>
       <p>players online: {Object.keys(connectedUsers).length}</p>
       <CreateGameButton />
+
       {Object.keys(gameList).length === 0 ?
         <p>no games at the moment</p>
         :
-        <GameList games={gameList} setSelectedGame={setSelectedGame} />}
+        <GameList
+          userID={user.userID}
+          games={gameList}
+          setSelectedGame={setSelectedGame}
+          emitJoin={emitJoin}
+        />
+      }
 
       {(selectedGame.state === null) ?
         <p>no selected</p>

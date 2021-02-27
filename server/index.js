@@ -23,15 +23,30 @@ io.on('connection', socket => {
   })
 
   socket.on('create game', (newGameRoom) => {
+    newGameRoom.connections.push(socket.id)
     games[newGameRoom.id] = newGameRoom
     io.emit('update games', games)
   })
+
+  socket.on('join game', (userID, gameID, isPlayer) => {
+    if (!games[gameID]) return
+    games[gameID].connections.push(socket.id)
+    if (isPlayer) games[gameID].playerID = userID
+    console.log(games)
+    io.emit('update games', games)
+  })
+
+  // TODO: leave game
+  // if host leaves --> close game
+  // else remove leaving user from game connections 
+  // add free spot if non hostplayer leaves
 
   socket.on('close game', (gameID) => {
     delete games[gameID]
     io.emit('update games', games)
   })
 
+  // TODO: broadcast moves only to connected users
   socket.on('move', (gameID, newState) => {
     // TODO: error if game not found
     if (games[gameID] === undefined) return

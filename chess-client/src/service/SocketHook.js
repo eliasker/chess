@@ -3,9 +3,7 @@ import socketIOClient from 'socket.io-client'
 
 const ENDPOINT = 'http://localhost:3001/'
 
-// TODO: const joinRoom = () => {}
 // TODO: const leaveRoom = () => {}
-// TODO: const message = () => {}
 
 const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
@@ -41,12 +39,16 @@ const SocketHook = (userID, username) => {
   }, [userID, username])
 
 
-  const emitCreateGame = (newGameRoom) => {
-    socket.current.emit('create game', newGameRoom)
+  const emitCreateGame = (user, newGameRoom) => {
+    socket.current.emit('create game', user, newGameRoom)
   }
 
   const emitState = (gameID, newState) => {
     socket.current.emit('move', gameID, newState)
+  }
+
+  const emitJoin = (userID, gameID, isPlayer) => {
+    socket.current.emit('join game', userID, gameID, isPlayer)
   }
 
   const emitEnd = (gameID) => {
@@ -59,6 +61,7 @@ const SocketHook = (userID, username) => {
     emitCreateGame,
     emitState,
     incMove,
+    emitJoin,
     emitEnd
   }
 }
