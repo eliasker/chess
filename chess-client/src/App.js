@@ -22,6 +22,7 @@ const App = () => {
     emitState,
     incMove,
     emitJoin,
+    emitLeave,
     emitEnd
   } = SocketHook(user.userID, user.username)
 
@@ -83,9 +84,11 @@ const App = () => {
         <p>no selected</p>
         :
         <Game
+          userID={user.userID}
           id={selectedGame.id}
           gamestate={selectedGame.state}
           emitState={emitState}
+          emitLeave={emitLeave}
           emitEnd={emitEnd}
           setSelectedGame={setSelectedGame}
         />

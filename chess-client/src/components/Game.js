@@ -4,7 +4,7 @@ import Chessboard from 'chessboardjsx'
 
 let game = new Chess()
 
-const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
+const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelectedGame }) => {
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
@@ -67,6 +67,11 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
     else setMoving("Start")
   }
 
+  const leaveGame = () => {
+    emitLeave(userID, id)
+    setSelectedGame({ id: null, state: null })
+  }
+
   const endGame = () => {
     emitEnd(id)
     setSelectedGame({ id: null, state: null })
@@ -84,6 +89,7 @@ const Game = ({ id, gamestate, emitState, emitEnd, setSelectedGame }) => {
         <button onClick={() => startStop()}>{moving === "Start" ? "Stop" : "Start"} moving</button>
         <button onClick={() => reset()}>Reset</button>
         <button onClick={() => listMoves()}>List moves</button>
+        <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => endGame()}>End game</button>
         <button onClick={() => rotateBoard()}>Flip board</button>
         <form onSubmit={e => playSelectedMove(e)}>
