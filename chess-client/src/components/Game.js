@@ -7,9 +7,7 @@ import Context from '../context/Context'
 let game = new Chess()
 
 const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
-  //  const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelectedGame }) => {
   const { user, setSelectedGame } = useContext(Context)
-  const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
   const [player, setPlayer] = useState('white')
@@ -49,14 +47,6 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
     broadcastFen(game.fen())
   }
 
-  const playSelectedMove = event => {
-    event.preventDefault()
-    game.move(moveInput)
-    setPosition(game.fen())
-    setMoveInput('')
-    broadcastFen(game.fen())
-  }
-
   const handleMove = (move) => {
     if (game.move(move)) {
       setPosition(game.fen())
@@ -93,10 +83,6 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
         <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => endGame()}>End game</button>
         <button onClick={() => rotateBoard()}>Flip board</button>
-        <form onSubmit={e => playSelectedMove(e)}>
-          <input value={moveInput} onChange={e => setMoveInput(e.target.value)} type="text" />
-          <input type="submit" />
-        </form>
         <br />
         <Chessboard
           width={400} position={position}
