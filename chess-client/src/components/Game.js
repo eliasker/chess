@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
+import Context from '../context/Context'
+
 let game = new Chess()
 
-const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelectedGame }) => {
+const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
+  //  const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelectedGame }) => {
+  const { user, setSelectedGame } = useContext(Context)
   const [moveInput, setMoveInput] = useState('')
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
@@ -45,8 +49,6 @@ const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelecte
     broadcastFen(game.fen())
   }
 
-  const listMoves = () => console.log(game.moves())
-
   const playSelectedMove = event => {
     event.preventDefault()
     game.move(moveInput)
@@ -68,7 +70,7 @@ const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelecte
   }
 
   const leaveGame = () => {
-    emitLeave(userID, id)
+    emitLeave(user.userID, id)
     setSelectedGame({ id: null, state: null })
   }
 
@@ -88,7 +90,6 @@ const Game = ({ userID, id, gamestate, emitState, emitLeave, emitEnd, setSelecte
         <button onClick={() => moveRandom()}>Random move</button>
         <button onClick={() => startStop()}>{moving === "Start" ? "Stop" : "Start"} moving</button>
         <button onClick={() => reset()}>Reset</button>
-        <button onClick={() => listMoves()}>List moves</button>
         <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => endGame()}>End game</button>
         <button onClick={() => rotateBoard()}>Flip board</button>
