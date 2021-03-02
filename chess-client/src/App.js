@@ -44,7 +44,7 @@ const App = () => {
         :
         <Game
           id={selectedGame.id}
-          gamestate={selectedGame.state}
+          selectedGame={selectedGame}
           emitState={emitState}
           emitLeave={emitLeave}
           emitEnd={emitEnd}

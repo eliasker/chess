@@ -12,8 +12,12 @@ const CreateGameButton = () => {
   } = useContext(Context)
 
   const handleCreate = () => {
+    const color = Math.random() > 0.5 ? "white" : "black"
+
     const newGameRoom = {
       hostID: user.userID,
+      hostColor: color,
+      playerColor: color === "white" ? "black" : "white",
       playerID: null,
       connections: [],
       id: uuidv4(),

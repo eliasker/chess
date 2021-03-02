@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
@@ -6,19 +6,18 @@ import Context from '../context/Context'
 
 let game = new Chess()
 
-const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
+const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
-  const [player, setPlayer] = useState('white')
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
     try {
-      game.load(gamestate)
+      game.load(selectedGame.state)
       setPosition(game.fen())
     } catch (e) { console.log(e) }
-  }, [gamestate])
+  }, [selectedGame])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,7 +27,7 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
   }, [moving])
 
   const broadcastFen = fen => {
-    emitState(id, fen)
+    emitState(selectedGame.id, fen)
   }
 
   const moveRandom = () => {
@@ -60,17 +59,13 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
   }
 
   const leaveGame = () => {
-    emitLeave(user.userID, id)
+    emitLeave(user.userID, selectedGame.id)
     setSelectedGame({ id: null, state: null })
   }
 
   const endGame = () => {
-    emitEnd(id)
+    emitEnd(selectedGame.id)
     setSelectedGame({ id: null, state: null })
-  }
-
-  const rotateBoard = () => {
-    player === "white" ? setPlayer("black") : setPlayer("white")
   }
 
   return (
@@ -82,11 +77,15 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
         <button onClick={() => reset()}>Reset</button>
         <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => endGame()}>End game</button>
-        <button onClick={() => rotateBoard()}>Flip board</button>
         <br />
+        <p>{selectedGame.playerID === null ?
+          "No opponent connected" :
+          `Guest#${selectedGame.playerID.slice(0, 4)}`}
+        </p>
         <Chessboard
           width={400} position={position}
-          orientation={player}
+          orientation={selectedGame.hostID === user.userID ?
+            selectedGame.hostColor : selectedGame.playerColor}
           onDrop={(move) =>
             handleMove({
               from: move.sourceSquare,
@@ -95,6 +94,7 @@ const Game = ({ id, gamestate, emitState, emitLeave, emitEnd }) => {
             })
           }
         />
+        <p>{`Guest#${selectedGame.hostID.slice(0, 4)}`}</p>
         {game.game_over() ? <p>game over</p> : null}
       </div>
     </div>

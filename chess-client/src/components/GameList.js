@@ -3,8 +3,6 @@ import React, { useContext } from 'react'
 import Context from '../context/Context'
 
 // TODO: num of players joined and spectating
-// 1/2 or 2/2, prevent joining if 2 players?
-// Yes: game has host and a player. 
 // if those are not null allow only joining as spectator
 const GameList = ({ games, emitJoin }) => {
   const { user, setSelectedGame } = useContext(Context)
@@ -31,7 +29,8 @@ const GameList = ({ games, emitJoin }) => {
             >
               Game {gameID.slice(0, 4)}
               <>
-                <button onClick={() => join(gameID)}>Join</button>
+                {(games[gameID].hostID !== user.userID && games[gameID].playerID === null) ?
+                  <button onClick={() => join(gameID)}>Join</button> : null}
                 <button onClick={() => spectate(gameID)}>Spectate</button>
               </>
             </li>

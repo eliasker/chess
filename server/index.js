@@ -37,7 +37,6 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
-  // TODO: leave game
   // if host leaves --> close game
   // else remove leaving user from game connections 
   // add free spot if non hostplayer leaves
@@ -45,7 +44,7 @@ io.on('connection', socket => {
     if (!games[gameID]) return
     if (userID === games[gameID].playerID) {
       games[gameID].playerID = null
-    } 
+    }
 
     const newConnections = games[gameID].connections
     const socketIDIndex = newConnections.indexOf(socket.id)
