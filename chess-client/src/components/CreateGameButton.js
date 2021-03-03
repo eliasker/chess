@@ -29,7 +29,9 @@ const CreateGameButton = () => {
   }
 
   return (
-    <button onClick={() => handleCreate()}>Create game</button>
+    <div className="create-game" >
+      <button onClick={() => handleCreate()}>Create game</button>
+    </div>
   )
 }
 

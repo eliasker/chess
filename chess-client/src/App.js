@@ -5,7 +5,6 @@ import Context from './context/Context'
 import Game from './components/Game'
 import './styles/App.css'
 import GameList from './components/GameList'
-import CreateGameButton from './components/CreateGameButton'
 import SocketHook from './service/SocketHook'
 
 const id = uuidv4()
@@ -33,23 +32,23 @@ const App = () => {
 
   return (
     <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>
-      <p>logged in as {user.username}</p>
-      <p>players online: {Object.keys(connectedUsers).length}</p>
-      <CreateGameButton />
+      <div className="grid-container">
+        <div className="icon"></div>
+        <div className="user">
+          <p>logged in as {user.username}</p>
+          <p>players online: {Object.keys(connectedUsers).length}</p>
+        </div>
 
-      <GameList games={currentGames} emitJoin={emitJoin} />
+        <GameList games={currentGames} emitJoin={emitJoin} />
 
-      {(selectedGame.state === null) ?
-        <p>No game selected</p>
-        :
         <Game
-          id={selectedGame.id}
           selectedGame={selectedGame}
           emitState={emitState}
           emitLeave={emitLeave}
           emitEnd={emitEnd}
         />
-      }
+
+      </div>
     </Context.Provider>
   )
 }

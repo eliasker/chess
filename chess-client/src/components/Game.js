@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
@@ -16,7 +16,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     try {
       game.load(selectedGame.state)
       setPosition(game.fen())
-    } catch (e) { console.log(e) }
+    } catch (e) { }
   }, [selectedGame])
 
   useEffect(() => {
@@ -67,38 +67,44 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     emitEnd(selectedGame.id)
     setSelectedGame({ id: null, state: null })
   }
-  console.log(selectedGame)
 
   return (
+
     <div className="center-container">
-      <div className="center-horizontal">
-        <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
-        <button onClick={() => moveRandom()}>Random move</button>
-        <button onClick={() => startStop()}>
-          {moving === "Start" ? "Stop" : "Start"} moving
+      <div>
+        {(selectedGame.state === null) ?
+          <p>No game selected</p>
+          :
+          <>
+            <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
+            <button onClick={() => moveRandom()}>Random move</button>
+            <button onClick={() => startStop()}>
+              {moving === "Start" ? "Stop" : "Start"} moving
           </button>
-        <button onClick={() => reset()}>Reset</button>
-        <button onClick={() => leaveGame()}>Leave game</button>
-        <button onClick={() => endGame()}>End game</button>
-        <br />
-        <p>{selectedGame.playerID === null ?
-          "No opponent connected" :
-          `Guest#${selectedGame.playerID.slice(0, 4)}`}
-        </p>
-        <Chessboard
-          width={400} position={position}
-          orientation={selectedGame.hostID === user.userID ?
-            selectedGame.hostColor : selectedGame.playerColor}
-          onDrop={(move) =>
-            handleMove({
-              from: move.sourceSquare,
-              to: move.targetSquare,
-              promotion: 'q'
-            })
-          }
-        />
-        <p>{`Guest#${selectedGame.hostID.slice(0, 4)}`}</p>
-        {game.game_over() ? <p>game over</p> : null}
+            <button onClick={() => reset()}>Reset</button>
+            <button onClick={() => leaveGame()}>Leave game</button>
+            <button onClick={() => endGame()}>End game</button>
+            <br />
+            <p>{selectedGame.playerID === null ?
+              "No opponent connected" :
+              `Guest#${selectedGame.playerID.slice(0, 4)}`}
+            </p>
+            <Chessboard
+              width={400} position={position}
+              orientation={selectedGame.hostID === user.userID ?
+                selectedGame.hostColor : selectedGame.playerColor}
+              onDrop={(move) =>
+                handleMove({
+                  from: move.sourceSquare,
+                  to: move.targetSquare,
+                  promotion: 'q'
+                })
+              }
+            />
+            <p>{`Guest#${selectedGame.hostID.slice(0, 4)}`}</p>
+            {game.game_over() ? <p>game over</p> : null}
+          </>
+        }
       </div>
     </div>
   )

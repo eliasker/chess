@@ -6,9 +6,9 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 200px 1fr;
   grid-template-rows: 50px 1fr;
-  background-color: aliceblue;
+  background-color: steelblue;
   width: 100vw;
   height: 100vh;
   padding: 10px;
@@ -18,37 +18,54 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: darkred;
+
 }
 
 .user {
   position: relative;
+  background-color: darkred;
 }
 
-.user>p {
+.user p {
   text-align: right;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(50%, -50%);
+  padding: 3px 10px 3px 0;
 }
 
-.game-list {}
-
-.game-list>ul {
-  list-style-type: none;
+.game-list {
+  background-color: red;
 }
 
-.game-container {
+.game-list > ul li {
+  display: list-item;
+  background: black;
+  padding: 5px 10px;
+  color:white;
+}
+
+.game-list li {
+  list-style: none;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
+
+.game-list li:nth-child(odd) {
+  background: darkblue
+}
+
+
+.create-game > button {
+  margin: 10px auto;
+  display: block;
+  position: relative;
+}
+
 .center-container {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.center-horizontal {
-  margin-left: 0;
+.clickable:hover {
+  cursor: pointer;
 }
