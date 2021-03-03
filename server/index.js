@@ -8,6 +8,8 @@ const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 const games = {}
 const connectedUsers = {}
 
+// TODO: disconnect users from connections properly
+// TODO: dont allow duplicate socket ids in connections
 io.on('connection', socket => {
   socket.emit('update games', games, null, null)
   socket.emit('update users', connectedUsers)

@@ -67,13 +67,16 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     emitEnd(selectedGame.id)
     setSelectedGame({ id: null, state: null })
   }
+  console.log(selectedGame)
 
   return (
     <div className="center-container">
       <div className="center-horizontal">
-
+        <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
         <button onClick={() => moveRandom()}>Random move</button>
-        <button onClick={() => startStop()}>{moving === "Start" ? "Stop" : "Start"} moving</button>
+        <button onClick={() => startStop()}>
+          {moving === "Start" ? "Stop" : "Start"} moving
+          </button>
         <button onClick={() => reset()}>Reset</button>
         <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => endGame()}>End game</button>

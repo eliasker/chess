@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import Context from './context/Context'
 import Game from './components/Game'
-import './App.css'
+import './styles/App.css'
 import GameList from './components/GameList'
 import CreateGameButton from './components/CreateGameButton'
 import SocketHook from './service/SocketHook'
