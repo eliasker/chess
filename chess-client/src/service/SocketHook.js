@@ -9,6 +9,7 @@ const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
   const [incMove, setIncMove] = useState({ gameID: null, gameState: null })
+  const [userUpdate, setUserUpdate] = useState({ gameID: null, playerID: null })
   const socket = useRef()
 
   useEffect(() => {
@@ -20,16 +21,26 @@ const SocketHook = (userID, username) => {
       setConnectedUsers(newUserList)
     })
 
-    socket.current.on('update games', (newGameList, gameID, newState) => {
+    socket.current.on('update games', (newGameList) => {
       setCurrentGames(newGameList)
+    })
+
+    socket.current.on('player event', (gameID, userID) => {
+      console.log('player event')
+      setUserUpdate({ gameID: gameID, playerID: userID })
+    })
+
+    // TODO: not actually used
+    socket.current.on('move', (gameID, newState) => {
+      console.log('move event')
       setIncMove({ gameID: gameID, gameState: newState })
     })
 
-    socket.current.on('move', (gameID, newState) => {
+    /*
+    socket.current.on('join', (userID, gameID, isPlayer) => {
       const updatedGames = currentGames
-      updatedGames[gameID].state = newState
-      setCurrentGames(updatedGames)
-    })
+      updatedGames
+    })*/
 
     socket.current.on('close game', (newGameList) => {
       setCurrentGames(newGameList)
@@ -65,6 +76,7 @@ const SocketHook = (userID, username) => {
     emitCreateGame,
     emitState,
     incMove,
+    userUpdate,
     emitJoin,
     emitLeave,
     emitEnd

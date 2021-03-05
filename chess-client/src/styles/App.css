@@ -8,7 +8,7 @@
   display: grid;
   grid-template-columns: 200px 1fr;
   grid-template-rows: 50px 1fr;
-  background-color: steelblue;
+  background-color: #efefef;
   width: 100vw;
   height: 100vh;
   padding: 10px;
@@ -18,13 +18,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: darkred;
+  background-color: #dddddd;
 
 }
 
 .user {
   position: relative;
-  background-color: darkred;
+  background-color: #dddddd;
 }
 
 .user p {
@@ -33,12 +33,12 @@
 }
 
 .game-list {
-  background-color: red;
+  background-color: #adadad;
 }
 
 .game-list > ul li {
   display: list-item;
-  background: black;
+  background: #bebebe;
   padding: 5px 10px;
   color:white;
 }
@@ -50,7 +50,7 @@
 }
 
 .game-list li:nth-child(odd) {
-  background: darkblue
+  background: #cdcdef
 }
 
 

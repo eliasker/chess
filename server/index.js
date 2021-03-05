@@ -31,27 +31,29 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
-  // TODO: prevent host joining own games
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
     games[gameID].connections.push(socket.id)
     if (isPlayer) games[gameID].playerID = userID
-    io.emit('update games', games)
+    io.emit('player event', gameID, userID)
+    io.emit('update games', games, gameID)
+
   })
 
-  // if host leaves --> close game
+  // TODO: if host leaves --> close game
   // else remove leaving user from game connections 
   // add free spot if non hostplayer leaves
   socket.on('leave game', (userID, gameID) => {
     if (!games[gameID]) return
     if (userID === games[gameID].playerID) {
       games[gameID].playerID = null
-    }
+    } 
 
     const newConnections = games[gameID].connections
     const socketIDIndex = newConnections.indexOf(socket.id)
     if (socketIDIndex >= 0) games[gameID].connections.splice(socketIDIndex, 1)
     io.emit('update games', games)
+    io.emit('player event', (gameID, null))
   })
 
   socket.on('close game', (gameID) => {
@@ -64,9 +66,7 @@ io.on('connection', socket => {
     // TODO: error if game not found
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
-    const str2 = games[gameID].state
-    console.log(gameID, '\n', str2, '\n')
-    io.emit('update games', games, gameID, newState)
+    io.emit('move', gameID, newState)
   })
 
 })

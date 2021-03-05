@@ -6,6 +6,7 @@ import Context from '../context/Context'
 
 let game = new Chess()
 
+// TODO: selectedgame player id not updating properly
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
@@ -13,6 +14,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
+    console.log("update in selected game ", selectedGame)
     try {
       game.load(selectedGame.state)
       setPosition(game.fen())
@@ -47,6 +49,16 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   }
 
   const handleMove = (move) => {
+    // am i host, is it hosts turn  ?  
+    /*
+    console.log("my id", user.userID) 
+    console.log("host id", selectedGame.hostID)
+    console.log("player id", selectedGame.playerID)
+    console.log("host color", selectedGame.hostColor)
+    console.log("player color", selectedGame.playerColor)
+*/
+    console.log(selectedGame)
+
     if (game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())

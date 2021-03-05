@@ -12,13 +12,14 @@ const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 
 // TODO: routing
 const App = () => {
-  const [selectedGame, setSelectedGame] = useState({ id: null, state: null })
+  const [selectedGame, setSelectedGame] = useState({ id: null, state: null, hostID: null, playerID: null })
   const {
     connectedUsers,
     currentGames,
     emitCreateGame,
     emitState,
     incMove,
+    userUpdate,
     emitJoin,
     emitLeave,
     emitEnd
@@ -29,6 +30,14 @@ const App = () => {
       setSelectedGame({ ...selectedGame, state: incMove.gameState })
     }
   }, [currentGames, incMove])
+
+  useEffect(() => {
+    console.log('userupdate', userUpdate.gameID === selectedGame.id)
+    console.log(userUpdate.gameID, selectedGame.id)
+    if (userUpdate.gameID === selectedGame.id) {
+      setSelectedGame({ ...selectedGame, playerID: userUpdate.playerID })
+    }
+  }, [userUpdate])
 
   return (
     <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>

@@ -11,4 +11,5 @@ Optionally: start the server using nodemon (when developing)
 
 ![Client-server diagram](./src/img/diagram.PNG "Client-server diagram")
 
-After each event the server emits the updated object.
+After each event the server emits the updated object.  
+At the moment this is how things are handled. I am planning on doing a rewrite before the server becomes too big of a mess.
