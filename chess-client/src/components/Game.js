@@ -6,7 +6,6 @@ import Context from '../context/Context'
 
 let game = new Chess()
 
-// TODO: selectedgame player id not updating properly
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
@@ -14,7 +13,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
-    console.log("update in selected game ", selectedGame)
     try {
       game.load(selectedGame.state)
       setPosition(game.fen())
@@ -48,18 +46,18 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     broadcastFen(game.fen())
   }
 
-  const handleMove = (move) => {
-    // am i host, is it hosts turn  ?  
-    /*
-    console.log("my id", user.userID) 
-    console.log("host id", selectedGame.hostID)
-    console.log("player id", selectedGame.playerID)
-    console.log("host color", selectedGame.hostColor)
-    console.log("player color", selectedGame.playerColor)
-*/
-    console.log(selectedGame)
+  const isMyTurn = () => {
+    if (user.userID === selectedGame.hostID) {
+      return selectedGame.hostColor.split("")[0] === game.turn()
+    } else if (user.userID === selectedGame.playerID) {
+      return selectedGame.playerColor.split("")[0] === game.turn()
+    }
+    console.log("not your turn")
+    return false
+  }
 
-    if (game.move(move)) {
+  const handleMove = (move) => {
+    if (isMyTurn() && game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())
     }
@@ -72,16 +70,32 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
   const leaveGame = () => {
     emitLeave(user.userID, selectedGame.id)
-    setSelectedGame({ id: null, state: null })
+    setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
   }
 
   const endGame = () => {
     emitEnd(selectedGame.id)
-    setSelectedGame({ id: null, state: null })
+    setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
+  }
+
+  const imHost = () => selectedGame.hostID === user.userID
+
+  const Opponent = () => {
+
+    return (
+      <>
+        <p>
+          {imHost() ? (selectedGame.playerID === null ? "No opponent connected" :
+            `Guest#${selectedGame.playerID.slice(0, 4)}`)
+            :
+            `Guest#${selectedGame.hostID.slice(0, 4)} (host)`
+          }
+        </p>
+      </>
+    )
   }
 
   return (
-
     <div className="center-container">
       <div>
         {(selectedGame.state === null) ?
@@ -92,15 +106,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <button onClick={() => moveRandom()}>Random move</button>
             <button onClick={() => startStop()}>
               {moving === "Start" ? "Stop" : "Start"} moving
-          </button>
+            </button>
             <button onClick={() => reset()}>Reset</button>
             <button onClick={() => leaveGame()}>Leave game</button>
             <button onClick={() => endGame()}>End game</button>
             <br />
-            <p>{selectedGame.playerID === null ?
-              "No opponent connected" :
-              `Guest#${selectedGame.playerID.slice(0, 4)}`}
-            </p>
+            <Opponent />
             <Chessboard
               width={400} position={position}
               orientation={selectedGame.hostID === user.userID ?
@@ -113,7 +124,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                 })
               }
             />
-            <p>{`Guest#${selectedGame.hostID.slice(0, 4)}`}</p>
+            <p>{imHost() ?
+              `Guest#${selectedGame.hostID.slice(0, 4)}` :
+              (selectedGame.playerID === null ? 'No opponent joined' :
+                `Guest#${user.userID.slice(0, 4)}`
+              )}
+            </p>
             {game.game_over() ? <p>game over</p> : null}
           </>
         }

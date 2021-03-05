@@ -34,8 +34,10 @@ io.on('connection', socket => {
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
     games[gameID].connections.push(socket.id)
-    if (isPlayer) games[gameID].playerID = userID
-    io.emit('player event', gameID, userID)
+    if (isPlayer) {
+      games[gameID].playerID = userID
+      io.emit('player event', gameID, userID)
+    }
     io.emit('update games', games, gameID)
 
   })
@@ -47,7 +49,7 @@ io.on('connection', socket => {
     if (!games[gameID]) return
     if (userID === games[gameID].playerID) {
       games[gameID].playerID = null
-    } 
+    }
 
     const newConnections = games[gameID].connections
     const socketIDIndex = newConnections.indexOf(socket.id)

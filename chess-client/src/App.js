@@ -32,8 +32,6 @@ const App = () => {
   }, [currentGames, incMove])
 
   useEffect(() => {
-    console.log('userupdate', userUpdate.gameID === selectedGame.id)
-    console.log(userUpdate.gameID, selectedGame.id)
     if (userUpdate.gameID === selectedGame.id) {
       setSelectedGame({ ...selectedGame, playerID: userUpdate.playerID })
     }
