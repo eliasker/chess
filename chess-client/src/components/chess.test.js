@@ -55,8 +55,9 @@ describe('Stalemate: black moving pawn to a2 causes stalemate', () => {
   game3.load(fen3)
   game3.move("a2")
 
-  test('Game has ended', () => {
+  test('Game has ended in a draw', () => {
     expect(game3.game_over()).toBe(true)
+    expect(game3.in_draw()).toBe(true)
   })
 
   test('Game is in stalemate', () => {

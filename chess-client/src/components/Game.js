@@ -6,7 +6,7 @@ import Context from '../context/Context'
 
 let game = new Chess()
 
-const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
+const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
@@ -15,14 +15,18 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   useEffect(() => {
     try {
       game.load(selectedGame.state)
+      if (game.game_over()) {
+        console.log('over', game.game_over(), 'mate', game.in_checkmate())
+      }
       setPosition(game.fen())
     } catch (e) { }
   }, [selectedGame])
 
+  // Dev utility for making random moves 
   useEffect(() => {
     const interval = setInterval(() => {
       if (moving === "Start") moveRandom()
-    }, 3000)
+    }, 300)
     return () => clearInterval(interval)
   }, [moving])
 
@@ -30,6 +34,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     emitState(selectedGame.id, fen)
   }
 
+  // Dev function that makes a random move on board (ignoring turn player checking)
   const moveRandom = () => {
     if (!game.game_over()) {
       const moves = game.moves()
@@ -52,7 +57,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     } else if (user.userID === selectedGame.playerID) {
       return selectedGame.playerColor.split("")[0] === game.turn()
     }
-    console.log("not your turn")
     return false
   }
 
@@ -60,6 +64,13 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     if (isMyTurn() && game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())
+      if (game.game_over()) {
+        if (game.in_draw()) {
+          emitEnd(selectedGame.id, user.userID, false)
+        } else {
+          emitEnd(selectedGame.id, user.userID, true)
+        }
+      }
     }
   }
 
@@ -73,7 +84,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
   }
 
-  const endGame = () => {
+  const closeGame = () => {
     emitEnd(selectedGame.id)
     setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
   }
@@ -95,6 +106,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     )
   }
 
+  const testCheckmate = () => {
+    game.load("6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1")
+    setPosition(game.fen())
+    broadcastFen(game.fen())
+  }
+
   return (
     <div className="center-container">
       <div>
@@ -108,8 +125,9 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
               {moving === "Start" ? "Stop" : "Start"} moving
             </button>
             <button onClick={() => reset()}>Reset</button>
+            <button onClick={() => testCheckmate()}>1 move checkmate</button>
             <button onClick={() => leaveGame()}>Leave game</button>
-            <button onClick={() => endGame()}>End game</button>
+            <button onClick={() => closeGame()}>Close game</button>
             <br />
             <Opponent />
             <Chessboard
@@ -130,7 +148,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                 `Guest#${selectedGame.playerID.slice(0, 4)}`
               )}
             </p>
-            {game.game_over() ? <p>game over</p> : null}
+            {game.game_over() ? <p>Game over</p> : null}
           </>
         }
       </div>

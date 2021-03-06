@@ -40,12 +40,11 @@ io.on('connection', socket => {
     games[gameID].connections.push(socket.id)
     if (isPlayer) {
       games[gameID].playerID = userID
-      const player = new Player(userID, 
+      const player = new Player(userID,
         games[gameID].host.color === "white" ? "black" : "white")
       games[gameID].player = player
-      console.log(games[gameID])
       io.emit('player event', gameID, userID)
-      
+
     }
     io.emit('update games', games)
   })
@@ -64,6 +63,22 @@ io.on('connection', socket => {
     if (socketIDIndex >= 0) games[gameID].connections.splice(socketIDIndex, 1)
     io.emit('update games', games)
     io.emit('player event', (gameID, null))
+  })
+
+  socket.on('game over', (gameID, playerID, isWinner) => {
+    console.log('game over', gameID, playerID, isWinner)
+    if (isWinner) {
+      if (games[gameID].host.id === playerID) {
+        games[gameID].host.addScore(1)
+      } else {
+        games[gameID].player.addScore(1)
+      }
+    } else {
+      games[gameID].host.addScore(0.5)
+      games[gameID].player.addScore(0.5)
+
+    }
+    console.log(games[gameID])
   })
 
   socket.on('close game', (gameID) => {

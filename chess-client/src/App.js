@@ -22,7 +22,8 @@ const App = () => {
     userUpdate,
     emitJoin,
     emitLeave,
-    emitEnd
+    emitEnd,
+    emitClose
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
@@ -53,6 +54,7 @@ const App = () => {
           emitState={emitState}
           emitLeave={emitLeave}
           emitEnd={emitEnd}
+          emitClose={emitClose}
         />
 
       </div>
