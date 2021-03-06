@@ -5,6 +5,8 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
 const PORT = process.env.PORT || 3001 // TODO: add process.env variable
 
+const { Player } = require('./src/Player')
+
 const games = {}
 const connectedUsers = {}
 
@@ -25,9 +27,11 @@ io.on('connection', socket => {
     io.emit('update users', connectedUsers)
   })
 
-  socket.on('create game', (newGameRoom) => {
+  socket.on('create game', (hostID, newGameRoom) => {
     newGameRoom.connections.push(socket.id)
     games[newGameRoom.id] = newGameRoom
+    const host = new Player(hostID, newGameRoom.hostColor)
+    newGameRoom.host = host
     io.emit('update games', games)
   })
 
@@ -36,10 +40,14 @@ io.on('connection', socket => {
     games[gameID].connections.push(socket.id)
     if (isPlayer) {
       games[gameID].playerID = userID
+      const player = new Player(userID, 
+        games[gameID].host.color === "white" ? "black" : "white")
+      games[gameID].player = player
+      console.log(games[gameID])
       io.emit('player event', gameID, userID)
+      
     }
-    io.emit('update games', games, gameID)
-
+    io.emit('update games', games)
   })
 
   // TODO: if host leaves --> close game

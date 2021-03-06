@@ -17,7 +17,6 @@ const SocketHook = (userID, username) => {
     socket.current = socketIOClient(ENDPOINT)
     socket.current.emit('join server', { userID: userID, username: username })
 
-    // users are mapped newUserList[socket.id] = user
     socket.current.on('update users', newUserList => {
       setConnectedUsers(newUserList)
     })
@@ -26,6 +25,11 @@ const SocketHook = (userID, username) => {
       setCurrentGames(newGameList)
     })
 
+    // TODO: combine player event & move into updateGame event
+    // connection
+    // { gameID: gameID, ...gameUpdate, playerID: connectingUserID }
+    // or move
+    // { gameID: gameID, gameState: newState, ...gameUpdate  }
     socket.current.on('player event', (gameID, userID) => {
       setUserUpdate({ gameID: gameID, playerID: userID })
     })
@@ -42,8 +46,8 @@ const SocketHook = (userID, username) => {
   }, [userID, username])
 
 
-  const emitCreateGame = (user, newGameRoom) => {
-    socket.current.emit('create game', user, newGameRoom)
+  const emitCreateGame = (newGameRoom) => {
+    socket.current.emit('create game', userID, newGameRoom)
   }
 
   const emitState = (gameID, newState) => {

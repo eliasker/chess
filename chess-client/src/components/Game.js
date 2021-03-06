@@ -127,7 +127,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <p>{imHost() ?
               `Guest#${selectedGame.hostID.slice(0, 4)}` :
               (selectedGame.playerID === null ? 'No opponent joined' :
-                `Guest#${user.userID.slice(0, 4)}`
+                `Guest#${selectedGame.playerID.slice(0, 4)}`
               )}
             </p>
             {game.game_over() ? <p>game over</p> : null}
