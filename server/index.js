@@ -12,6 +12,10 @@ const connectedUsers = {}
 
 // TODO: disconnect users from connections properly
 // TODO: dont allow duplicate socket ids in connections
+/**
+ * When client connects to the server 'connection' event is fired
+ * Users are added to connectedUsers using the sockets id as key
+ */
 io.on('connection', socket => {
   socket.emit('update games', games, null, null)
   socket.emit('update users', connectedUsers)
@@ -65,6 +69,13 @@ io.on('connection', socket => {
     io.emit('player event', (gameID, null))
   })
 
+  /**
+   * Server receives this event after a game ending move has been played
+   * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
+   * @param {*} playerID player who played the move
+   * @param {*} isWinner did player win or cause a draw
+   * Fun fact: you can't technically play a game losing move
+   */
   socket.on('game over', (gameID, playerID, isWinner) => {
     console.log('game over', gameID, playerID, isWinner)
     if (isWinner) {
@@ -78,7 +89,7 @@ io.on('connection', socket => {
       games[gameID].player.addScore(0.5)
 
     }
-    console.log(games[gameID])
+    io.emit('update games', games)
   })
 
   socket.on('close game', (gameID) => {
