@@ -31,11 +31,10 @@ io.on('connection', socket => {
     io.emit('update users', connectedUsers)
   })
 
-  socket.on('create game', (hostID, newGameRoom) => {
+  socket.on('create game', (newGameRoom) => {
     newGameRoom.connections.push(socket.id)
     games[newGameRoom.id] = newGameRoom
-    const host = new Player(hostID, newGameRoom.hostColor)
-    newGameRoom.host = host
+    newGameRoom.host = new Player(newGameRoom.host.id, newGameRoom.host.color)
     io.emit('update games', games)
   })
 
@@ -43,10 +42,9 @@ io.on('connection', socket => {
     if (!games[gameID]) return
     games[gameID].connections.push(socket.id)
     if (isPlayer) {
-      games[gameID].playerID = userID
-      const player = new Player(userID,
+      const newPlayer = new Player(userID,
         games[gameID].host.color === "white" ? "black" : "white")
-      games[gameID].player = player
+      games[gameID].player = newPlayer
       io.emit('game update', games[gameID])
     }
     io.emit('update games', games)
@@ -57,8 +55,13 @@ io.on('connection', socket => {
   // add free spot if non hostplayer leaves
   socket.on('leave game', (userID, gameID) => {
     if (!games[gameID]) return
-    if (userID === games[gameID].playerID) {
-      games[gameID].playerID = null
+    if (userID === games[gameID].player.id) {
+      games[gameID].player = {
+        time: 0,
+        score: 0,
+        id: null,
+        color: ""
+      }
     }
 
     const newConnections = games[gameID].connections
@@ -76,7 +79,6 @@ io.on('connection', socket => {
    * Fun fact: you can't technically play a game losing move
    */
   socket.on('game over', (gameID, playerID, isWinner) => {
-    console.log('game over', gameID, playerID, isWinner)
     if (isWinner) {
       if (games[gameID].host.id === playerID) {
         games[gameID].host.addScore(1)

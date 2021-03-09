@@ -13,5 +13,6 @@ export const initialGameroom = {
   id: null,
   state: fen.startingPosition,
   host: initialPlayer,
-  player: initialPlayer
+  player: initialPlayer,
+  connections: []
 }

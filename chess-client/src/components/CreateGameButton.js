@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import Context from '../context/Context'
 import { v4 as uuidv4 } from 'uuid'
 
-import { fen } from '../Constants'
+import { initialPlayer, initialGameroom } from '../Constants'
 
 const CreateGameButton = () => {
   const {
@@ -12,17 +12,10 @@ const CreateGameButton = () => {
   } = useContext(Context)
 
   const handleCreate = () => {
-    const color = Math.random() > 0.5 ? "white" : "black"
+    const randomColor = Math.random() > 0.5 ? "white" : "black"
 
-    const newGameRoom = {
-      hostID: user.userID,
-      hostColor: color,
-      playerColor: color === "white" ? "black" : "white",
-      playerID: null,
-      connections: [],
-      id: uuidv4(),
-      state: fen.startingPosition
-    }
+    const newHost = { ...initialPlayer, id: user.userID, color: randomColor }
+    const newGameRoom = { ...initialGameroom, id: uuidv4(), host: newHost }
 
     emitCreateGame(newGameRoom)
     setSelectedGame(newGameRoom)
