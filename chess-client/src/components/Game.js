@@ -4,6 +4,7 @@ import Chessboard from 'chessboardjsx'
 
 import Context from '../context/Context'
 import { initialGameroom } from '../Constants'
+import Player from './Player'
 let game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
@@ -100,22 +101,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     setSelectedGame(initialGameroom)
   }
 
-  const imHost = () => selectedGame.host.id === user.userID
-
-  const Opponent = () => {
-
-    return (
-      <>
-        <p>
-          {imHost() ? (selectedGame.player.id === null ? "No opponent connected" :
-            `Guest#${selectedGame.player.id.slice(0, 4)}`)
-            :
-            `Guest#${selectedGame.host.id.slice(0, 4)} (host)`
-          }
-        </p>
-      </>
-    )
-  }
+  const imPlayer = () => selectedGame.player.id === user.userID
 
   const testCheckmate = () => {
     game.load("6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1")
@@ -129,6 +115,23 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     broadcastFen(game.fen())
   }
 
+  const Buttons = () => {
+    return (
+      <>
+        <button onClick={() => moveRandom()}>Random move</button>
+        <button onClick={() => startStop()}>
+          {moving === "Start" ? "Stop" : "Start"} moving
+            </button>
+        <button onClick={() => reset()}>Reset</button>
+        <button onClick={() => testCheckmate()}>1 move checkmate</button>
+        <button onClick={() => testDraw()}>Draw</button>
+        <button onClick={() => leaveGame()}>Leave game</button>
+        <button onClick={() => closeGame()}>Close game</button>
+        <br />
+      </>
+    )
+  }
+
   return (
     <div className="center-container">
       <div>
@@ -137,35 +140,41 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
           :
           <>
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
-            <button onClick={() => moveRandom()}>Random move</button>
-            <button onClick={() => startStop()}>
-              {moving === "Start" ? "Stop" : "Start"} moving
-            </button>
-            <button onClick={() => reset()}>Reset</button>
-            <button onClick={() => testCheckmate()}>1 move checkmate</button>
-            <button onClick={() => testDraw()}>Draw</button>
-            <button onClick={() => leaveGame()}>Leave game</button>
-            <button onClick={() => closeGame()}>Close game</button>
-            <br />
-            <Opponent />
-            <Chessboard
-              width={400} position={position}
-              orientation={selectedGame.host.id === user.userID ?
-                selectedGame.host.color : selectedGame.player.color}
-              onDrop={(move) =>
-                handleMove({
-                  from: move.sourceSquare,
-                  to: move.targetSquare,
-                  promotion: 'q'
-                })
-              }
-            />
-            <p>{imHost() ?
-              `Guest#${selectedGame.host.id.slice(0, 4)}` :
-              (selectedGame.player.id === null ? 'No opponent joined' :
-                `Guest#${selectedGame.player.id.slice(0, 4)}`
-              )}
-            </p>
+            <Buttons />
+
+            {imPlayer() ?
+              <>
+                <Player id={selectedGame.host.id} score={selectedGame.host.score} />
+                <Chessboard
+                  width={400} position={position}
+                  orientation={selectedGame.player.color}
+                  onDrop={(move) =>
+                    handleMove({
+                      from: move.sourceSquare,
+                      to: move.targetSquare,
+                      promotion: 'q'
+                    })
+                  }
+                />
+                <Player id={selectedGame.player.id} score={selectedGame.player.score} />
+              </>
+              :
+              <>
+                <Player id={selectedGame.player.id} score={selectedGame.player.score} />
+                <Chessboard
+                  width={400} position={position}
+                  orientation={selectedGame.host.color}
+                  onDrop={(move) =>
+                    handleMove({
+                      from: move.sourceSquare,
+                      to: move.targetSquare,
+                      promotion: 'q'
+                    })
+                  }
+                />
+                <Player id={selectedGame.host.id} score={selectedGame.host.score} />
+              </>
+            }
             {gameOver === "" ? null : <p>{gameOver}</p>}
           </>
         }
