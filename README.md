@@ -11,6 +11,11 @@ React client and express/socket.io server for playing realtime chess.
 `chess\server> npm start`  
 `chess\chess-client> npm start`  
 
+### Tests
+
+`chess\chess-client> npm run test`  
+
+
 Used libraries:
 chess.js - handles the game logic  
 chessboard.jsx - gameboard and pieces  

@@ -10,15 +10,14 @@ const { Player } = require('./src/Player')
 const games = {}
 const connectedUsers = {}
 
-// TODO: disconnect users from connections properly
-// TODO: dont allow duplicate socket ids in connections
 /**
  * When client connects to the server 'connection' event is fired
  * Users are added to connectedUsers using the sockets id as key
+ * TODO: disconnect users from connections properly
+ * TODO: dont allow duplicate socket ids in connections
  */
 io.on('connection', socket => {
-  socket.emit('update games', games, null, null)
-  socket.emit('update users', connectedUsers)
+  socket.emit('update games', games)
 
   // TODO: Check if disconnecting user is playing (or spectating)
   socket.on('disconnect', () => {
@@ -26,11 +25,22 @@ io.on('connection', socket => {
     io.emit('update users', connectedUsers)
   })
 
+  /**
+   * After connecting client emits his data (id, username) with 'join server' event
+   * User is added to connectedUsers object using her sockets id as key
+   * Updated connectedUsers is then sent to everyone
+   */
   socket.on('join server', (user) => {
     connectedUsers[socket.id] = user
     io.emit('update users', connectedUsers)
   })
 
+  /**
+   * When user creates game newGameRoom object is sent to server
+   * It has default chess board position and 
+   * Host is replaced with Player object that has same id and color
+   * newGameRoom is added to games which is then sent to everyone
+   */
   socket.on('create game', (newGameRoom) => {
     newGameRoom.connections.push(socket.id)
     games[newGameRoom.id] = newGameRoom
@@ -38,6 +48,13 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
+  /**
+   * User can join into a game as a spectator or as a player
+   * @param {*} isPlayer true or false 
+   * If isPlayer is true a new Player object is created and added as player to the game
+   * (Only host and player can play game and only single user can join as a player)
+   * In both cases socket is added to games connections
+   */
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
     games[gameID].connections.push(socket.id)
@@ -50,9 +67,11 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
-  // TODO: if host leaves --> close game
-  // else remove leaving user from game connections 
-  // add free spot if non hostplayer leaves
+  /**
+   * If player leaves default player is put in leavers place
+   * TODO: if host leaves --> close game
+   * TODO: removing socket ids properly from connections
+   */
   socket.on('leave game', (userID, gameID) => {
     if (!games[gameID]) return
     if (userID === games[gameID].player.id) {
@@ -98,9 +117,12 @@ io.on('connection', socket => {
     io.emit('update games', games)
   })
 
-  // TODO: broadcast moves only to connected users
+  /** 
+   * Move is sent to server as validated client side (legality & sent by correct player)
+   * @param {*} newState fen string that describes where pieces are on a chess board
+   * TODO: broadcast moves only to connected users
+   */ 
   socket.on('move', (gameID, newState) => {
-    // TODO: error if game not found
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
     io.emit('game update', games[gameID])

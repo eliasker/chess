@@ -39,7 +39,6 @@ const SocketHook = (userID, username) => {
 
 
   const emitCreateGame = (newGameRoom) => {
-    console.log(newGameRoom)
     socket.current.emit('create game', newGameRoom)
   }
 
