@@ -115,7 +115,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   return (
     <div className="center-container">
       <div>
-        {(selectedGame.state === null) ?
+        {(selectedGame.id === null) ?
           <p>No game selected</p>
           :
           <>

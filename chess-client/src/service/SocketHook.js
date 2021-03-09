@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
 import socketIOClient from 'socket.io-client'
 
+import { initialGameroom } from '../Constants'
+
 const ENDPOINT = 'http://localhost:3001/'
 
 /**
@@ -9,7 +11,7 @@ const ENDPOINT = 'http://localhost:3001/'
 const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
-  const [gameUpdate, setGameUpdate] = useState({ id: null, state: null, hostID: null, playerID: null })
+  const [gameUpdate, setGameUpdate] = useState(initialGameroom)
   const socket = useRef()
 
   useEffect(() => {

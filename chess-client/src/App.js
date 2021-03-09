@@ -6,13 +6,13 @@ import Game from './components/Game'
 import './styles/App.css'
 import GameList from './components/GameList'
 import SocketHook from './service/SocketHook'
-
+import { initialGameroom } from './Constants'
 const id = uuidv4()
 const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 
 // TODO: routing
 const App = () => {
-  const [selectedGame, setSelectedGame] = useState({ id: null, state: null, hostID: null, playerID: null })
+  const [selectedGame, setSelectedGame] = useState(initialGameroom)
   const {
     connectedUsers,
     currentGames,

@@ -102,6 +102,7 @@ io.on('connection', socket => {
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
     io.emit('game update', games[gameID])
+    io.emit('update games', games)
   })
 })
 
