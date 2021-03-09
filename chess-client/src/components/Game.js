@@ -10,14 +10,34 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState("Stop")
+  const [gameOver, setGameOver] = useState("")
+
+  const isMyTurn = () => {
+    if (user.userID === selectedGame.host.id) {
+      return selectedGame.host.color.split("")[0] === game.turn()
+    } else if (user.userID === selectedGame.player.id) {
+      return selectedGame.player.color.split("")[0] === game.turn()
+    }
+    return false
+  }
 
   // useEffect that updates gameboard when selected game is changed 
   useEffect(() => {
     try {
       game.load(selectedGame.state)
       if (game.game_over()) {
-        console.log('over', game.game_over(), 'mate', game.in_checkmate())
-      }
+        if (game.in_draw()) {
+          setGameOver("Game over: Draw")
+        } else if (game.in_checkmate()) {
+          if (isMyTurn()) {
+            setGameOver("Game over: You lost")
+          } else if (user.userID === selectedGame.host.id || user.userID === selectedGame.player.id) {
+            setGameOver("Game over: You won")
+          } else {
+            setGameOver("Game over")
+          }
+        }
+      } else (setGameOver(""))
       setPosition(game.fen())
     } catch (e) { }
   }, [selectedGame])
@@ -49,15 +69,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     game.reset()
     setPosition(game.fen())
     broadcastFen(game.fen())
-  }
-
-  const isMyTurn = () => {
-    if (user.userID === selectedGame.host.id) {
-      return selectedGame.host.color.split("")[0] === game.turn()
-    } else if (user.userID === selectedGame.player.id) {
-      return selectedGame.player.color.split("")[0] === game.turn()
-    }
-    return false
   }
 
   const handleMove = (move) => {
@@ -112,6 +123,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     broadcastFen(game.fen())
   }
 
+  const testDraw = () => {
+    game.load("8/8/5k2/3K4/8/8/8/8 w - - 0 1")
+    setPosition(game.fen())
+    broadcastFen(game.fen())
+  }
+
   return (
     <div className="center-container">
       <div>
@@ -126,6 +143,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
             </button>
             <button onClick={() => reset()}>Reset</button>
             <button onClick={() => testCheckmate()}>1 move checkmate</button>
+            <button onClick={() => testDraw()}>Draw</button>
             <button onClick={() => leaveGame()}>Leave game</button>
             <button onClick={() => closeGame()}>Close game</button>
             <br />
@@ -148,7 +166,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
                 `Guest#${selectedGame.player.id.slice(0, 4)}`
               )}
             </p>
-            {game.game_over() ? <p>Game over</p> : null}
+            {gameOver === "" ? null : <p>{gameOver}</p>}
           </>
         }
       </div>
