@@ -19,7 +19,6 @@
   align-items: center;
   justify-content: center;
   background-color: #dddddd;
-
 }
 
 .user {
@@ -36,11 +35,11 @@
   background-color: #adadad;
 }
 
-.game-list > ul li {
+.game-list>ul li {
   display: list-item;
   background: #bebebe;
   padding: 5px 10px;
-  color:white;
+  color: white;
 }
 
 .game-list li {
@@ -53,8 +52,7 @@
   background: #cdcdef
 }
 
-
-.create-game > button {
+.create-game>button {
   margin: 10px auto;
   display: block;
   position: relative;
@@ -68,4 +66,9 @@
 
 .clickable:hover {
   cursor: pointer;
+}
+
+.opposite-container {
+  display: flex;
+  justify-content: space-between;
 }

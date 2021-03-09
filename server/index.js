@@ -109,6 +109,7 @@ io.on('connection', socket => {
       games[gameID].player.addScore(0.5)
 
     }
+    io.emit('game update', games[gameID])
     io.emit('update games', games)
   })
 
