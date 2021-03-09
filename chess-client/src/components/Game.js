@@ -85,7 +85,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const closeGame = () => {
-    emitEnd(selectedGame.id)
+    emitClose(selectedGame.id)
     setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
   }
 

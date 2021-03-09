@@ -47,8 +47,7 @@ io.on('connection', socket => {
       const player = new Player(userID,
         games[gameID].host.color === "white" ? "black" : "white")
       games[gameID].player = player
-      io.emit('player event', gameID, userID)
-
+      io.emit('game update', games[gameID])
     }
     io.emit('update games', games)
   })
@@ -66,7 +65,7 @@ io.on('connection', socket => {
     const socketIDIndex = newConnections.indexOf(socket.id)
     if (socketIDIndex >= 0) games[gameID].connections.splice(socketIDIndex, 1)
     io.emit('update games', games)
-    io.emit('player event', (gameID, null))
+    io.emit('game update', games[gameID])
   })
 
   /**
@@ -102,9 +101,8 @@ io.on('connection', socket => {
     // TODO: error if game not found
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
-    io.emit('move', gameID, newState)
+    io.emit('game update', games[gameID])
   })
-
 })
 
 /*

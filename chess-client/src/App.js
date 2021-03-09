@@ -18,8 +18,7 @@ const App = () => {
     currentGames,
     emitCreateGame,
     emitState,
-    incMove,
-    userUpdate,
+    gameUpdate,
     emitJoin,
     emitLeave,
     emitEnd,
@@ -27,16 +26,12 @@ const App = () => {
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
-    if (incMove.gameID === selectedGame.id) {
-      setSelectedGame({ ...selectedGame, state: incMove.gameState })
-    }
-  }, [currentGames, incMove])
-
-  useEffect(() => {
-    if (userUpdate.gameID === selectedGame.id) {
-      setSelectedGame({ ...selectedGame, playerID: userUpdate.playerID })
-    }
-  }, [userUpdate])
+    try {
+      if (gameUpdate.id === selectedGame.id) {
+        setSelectedGame(gameUpdate)
+      }
+    } catch (e) { }
+  }, [gameUpdate])
 
   return (
     <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>

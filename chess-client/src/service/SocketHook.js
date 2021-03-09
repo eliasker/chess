@@ -9,8 +9,7 @@ const ENDPOINT = 'http://localhost:3001/'
 const SocketHook = (userID, username) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
-  const [incMove, setIncMove] = useState({ gameID: null, gameState: null })
-  const [userUpdate, setUserUpdate] = useState({ gameID: null, playerID: null })
+  const [gameUpdate, setGameUpdate] = useState({ id: null, state: null, hostID: null, playerID: null })
   const socket = useRef()
 
   useEffect(() => {
@@ -25,17 +24,8 @@ const SocketHook = (userID, username) => {
       setCurrentGames(newGameList)
     })
 
-    // TODO: combine player event & move into updateGame event
-    // connection
-    // { gameID: gameID, ...gameUpdate, playerID: connectingUserID }
-    // or move
-    // { gameID: gameID, gameState: newState, ...gameUpdate  }
-    socket.current.on('player event', (gameID, userID) => {
-      setUserUpdate({ gameID: gameID, playerID: userID })
-    })
-
-    socket.current.on('move', (gameID, newState) => {
-      setIncMove({ gameID: gameID, gameState: newState })
+    socket.current.on('game update', (updatedGame) => {
+      setGameUpdate(updatedGame)
     })
 
     socket.current.on('close game', (newGameList) => {
@@ -75,8 +65,7 @@ const SocketHook = (userID, username) => {
     currentGames,
     emitCreateGame,
     emitState,
-    incMove,
-    userUpdate,
+    gameUpdate,
     emitJoin,
     emitLeave,
     emitEnd,
