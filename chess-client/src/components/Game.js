@@ -3,7 +3,7 @@ import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
 import Context from '../context/Context'
-
+import { initialGameroom } from '../Constants'
 let game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
@@ -52,10 +52,10 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const isMyTurn = () => {
-    if (user.userID === selectedGame.hostID) {
-      return selectedGame.hostColor.split("")[0] === game.turn()
-    } else if (user.userID === selectedGame.playerID) {
-      return selectedGame.playerColor.split("")[0] === game.turn()
+    if (user.userID === selectedGame.host.id) {
+      return selectedGame.host.color.split("")[0] === game.turn()
+    } else if (user.userID === selectedGame.player.id) {
+      return selectedGame.player.color.split("")[0] === game.turn()
     }
     return false
   }
@@ -81,25 +81,25 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
 
   const leaveGame = () => {
     emitLeave(user.userID, selectedGame.id)
-    setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
+    setSelectedGame(initialGameroom)
   }
 
   const closeGame = () => {
-    emitEnd(selectedGame.id)
-    setSelectedGame({ id: null, state: null, hostID: null, playerID: null })
+    emitClose(selectedGame.id)
+    setSelectedGame(initialGameroom)
   }
 
-  const imHost = () => selectedGame.hostID === user.userID
+  const imHost = () => selectedGame.host.id === user.userID
 
   const Opponent = () => {
 
     return (
       <>
         <p>
-          {imHost() ? (selectedGame.playerID === null ? "No opponent connected" :
-            `Guest#${selectedGame.playerID.slice(0, 4)}`)
+          {imHost() ? (selectedGame.player.id === null ? "No opponent connected" :
+            `Guest#${selectedGame.player.id.slice(0, 4)}`)
             :
-            `Guest#${selectedGame.hostID.slice(0, 4)} (host)`
+            `Guest#${selectedGame.host.id.slice(0, 4)} (host)`
           }
         </p>
       </>
@@ -115,7 +115,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   return (
     <div className="center-container">
       <div>
-        {(selectedGame.state === null) ?
+        {(selectedGame.id === null) ?
           <p>No game selected</p>
           :
           <>
@@ -132,8 +132,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
             <Opponent />
             <Chessboard
               width={400} position={position}
-              orientation={selectedGame.hostID === user.userID ?
-                selectedGame.hostColor : selectedGame.playerColor}
+              orientation={selectedGame.host.id === user.userID ?
+                selectedGame.host.color : selectedGame.player.color}
               onDrop={(move) =>
                 handleMove({
                   from: move.sourceSquare,
@@ -143,9 +143,9 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
               }
             />
             <p>{imHost() ?
-              `Guest#${selectedGame.hostID.slice(0, 4)}` :
-              (selectedGame.playerID === null ? 'No opponent joined' :
-                `Guest#${selectedGame.playerID.slice(0, 4)}`
+              `Guest#${selectedGame.host.id.slice(0, 4)}` :
+              (selectedGame.player.id === null ? 'No opponent joined' :
+                `Guest#${selectedGame.player.id.slice(0, 4)}`
               )}
             </p>
             {game.game_over() ? <p>Game over</p> : null}

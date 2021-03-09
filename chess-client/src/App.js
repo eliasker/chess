@@ -6,20 +6,19 @@ import Game from './components/Game'
 import './styles/App.css'
 import GameList from './components/GameList'
 import SocketHook from './service/SocketHook'
-
+import { initialGameroom } from './Constants'
 const id = uuidv4()
 const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 
 // TODO: routing
 const App = () => {
-  const [selectedGame, setSelectedGame] = useState({ id: null, state: null, hostID: null, playerID: null })
+  const [selectedGame, setSelectedGame] = useState(initialGameroom)
   const {
     connectedUsers,
     currentGames,
     emitCreateGame,
     emitState,
-    incMove,
-    userUpdate,
+    gameUpdate,
     emitJoin,
     emitLeave,
     emitEnd,
@@ -27,16 +26,12 @@ const App = () => {
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {
-    if (incMove.gameID === selectedGame.id) {
-      setSelectedGame({ ...selectedGame, state: incMove.gameState })
-    }
-  }, [currentGames, incMove])
-
-  useEffect(() => {
-    if (userUpdate.gameID === selectedGame.id) {
-      setSelectedGame({ ...selectedGame, playerID: userUpdate.playerID })
-    }
-  }, [userUpdate])
+    try {
+      if (gameUpdate.id === selectedGame.id) {
+        setSelectedGame(gameUpdate)
+      }
+    } catch (e) { }
+  }, [gameUpdate])
 
   return (
     <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>
