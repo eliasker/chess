@@ -110,7 +110,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const testDraw = () => {
-    game.load("8/8/5k2/3K4/8/8/8/8 w - - 0 1")
+    game.load("8/8/8/8/8/pk6/8/K7 b - - 1 1")
     setPosition(game.fen())
     broadcastFen(game.fen())
   }
@@ -122,7 +122,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
         <button onClick={() => startStop()}>
           {moving === "Start" ? "Stop" : "Start"} moving
             </button>
-        <button onClick={() => reset()}>Reset</button>
+        <button onClick={() => reset()}>Reset</button><br />
         <button onClick={() => testCheckmate()}>1 move checkmate</button>
         <button onClick={() => testDraw()}>Draw</button>
         <button onClick={() => leaveGame()}>Leave game</button>
