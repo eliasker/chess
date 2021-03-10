@@ -52,7 +52,7 @@ io.on('connection', socket => {
    * @param {*} isPlayer true or false 
    * If isPlayer is true a new Player object is created and added as player to the game
    * (Only host and player can play game and only single user can join as a player)
-   * In both cases socket is added to games connections
+   * In both cases socket is added to games connections and update sent
    */
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
@@ -61,8 +61,8 @@ io.on('connection', socket => {
       const newPlayer = new Player(userID,
         games[gameID].host.color === "white" ? "black" : "white")
       games[gameID].player = newPlayer
-      io.emit('game update', games[gameID])
     }
+    io.emit('game update', games[gameID])
     io.emit('update games', games)
   })
 
@@ -116,15 +116,16 @@ io.on('connection', socket => {
   })
 
   /** 
-   * Move is sent to server as validated client side (legality & sent by correct player)
-   * @param {*} newState fen string that describes where pieces are on a chess board
-   * TODO: broadcast moves only to connected users
+   * A move is sent to server after client side validation (legality & sent by correct player) as a 
+   * @param {*} newState fen string: describes where pieces are on a chessboard
+   * Every client that is connected receives updated game
    */
   socket.on('move', (gameID, newState) => {
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
-    io.emit('game update', games[gameID])
-    io.emit('update games', games)
+    for (let socketID of games[gameID].connections) {
+      io.to(socketID).emit('game update', games[gameID])
+    }
   })
 })
 
