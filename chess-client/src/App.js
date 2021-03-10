@@ -35,9 +35,9 @@ const App = () => {
 
   return (
     <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>
-      <div className="grid-container">
-        <div className="icon"></div>
-        <div className="user">
+      <div className='grid-container'>
+        <div className='icon' />
+        <div className='user'>
           <p>logged in as {user.username}</p>
           <p>players online: {Object.keys(connectedUsers).length}</p>
         </div>

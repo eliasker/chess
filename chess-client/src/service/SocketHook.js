@@ -37,7 +37,6 @@ const SocketHook = (userID, username) => {
     return () => { socket.current.disconnect() }
   }, [userID, username])
 
-
   const emitCreateGame = (newGameRoom) => {
     socket.current.emit('create game', newGameRoom)
   }

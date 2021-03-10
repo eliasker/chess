@@ -12,7 +12,7 @@ const CreateGameButton = () => {
   } = useContext(Context)
 
   const handleCreate = () => {
-    const randomColor = Math.random() > 0.5 ? "white" : "black"
+    const randomColor = Math.random() > 0.5 ? 'white' : 'black'
 
     const newHost = { ...initialPlayer, id: user.userID, color: randomColor }
     const newGameRoom = { ...initialGameroom, id: uuidv4(), host: newHost }
@@ -22,7 +22,7 @@ const CreateGameButton = () => {
   }
 
   return (
-    <div className="create-game" >
+    <div className='create-game'>
       <button onClick={() => handleCreate()}>Create game</button>
     </div>
   )

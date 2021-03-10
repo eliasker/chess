@@ -5,48 +5,48 @@ import Chessboard from 'chessboardjsx'
 import Context from '../context/Context'
 import { initialGameroom } from '../Constants'
 import Player from './Player'
-let game = new Chess()
+const game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   const { user, setSelectedGame } = useContext(Context)
   const [position, setPosition] = useState(null)
-  const [moving, setMoving] = useState("Stop")
-  const [gameOver, setGameOver] = useState("")
+  const [moving, setMoving] = useState('Stop')
+  const [gameOver, setGameOver] = useState('')
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
-      return selectedGame.host.color.split("")[0] === game.turn()
+      return selectedGame.host.color.split('')[0] === game.turn()
     } else if (user.userID === selectedGame.player.id) {
-      return selectedGame.player.color.split("")[0] === game.turn()
+      return selectedGame.player.color.split('')[0] === game.turn()
     }
     return false
   }
 
-  // useEffect that updates gameboard when selected game is changed 
+  // useEffect that updates gameboard when selected game is changed
   useEffect(() => {
     try {
       game.load(selectedGame.state)
       if (game.game_over()) {
         if (game.in_draw()) {
-          setGameOver("Game over: Draw")
+          setGameOver('Game over: Draw')
         } else if (game.in_checkmate()) {
           if (isMyTurn()) {
-            setGameOver("Game over: You lost")
+            setGameOver('Game over: You lost')
           } else if (user.userID === selectedGame.host.id || user.userID === selectedGame.player.id) {
-            setGameOver("Game over: You won")
+            setGameOver('Game over: You won')
           } else {
-            setGameOver("Game over")
+            setGameOver('Game over')
           }
         }
-      } else (setGameOver(""))
+      } else (setGameOver(''))
       setPosition(game.fen())
     } catch (e) { }
   }, [selectedGame])
 
-  // Dev utility for making random moves 
+  // Dev utility for making random moves
   useEffect(() => {
     const interval = setInterval(() => {
-      if (moving === "Start") moveRandom()
+      if (moving === 'Start') moveRandom()
     }, 300)
     return () => clearInterval(interval)
   }, [moving])
@@ -87,8 +87,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const startStop = () => {
-    if (moving === "Start") setMoving("Stop")
-    else setMoving("Start")
+    if (moving === 'Start') setMoving('Stop')
+    else setMoving('Start')
   }
 
   const leaveGame = () => {
@@ -104,13 +104,13 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   const imPlayer = () => selectedGame.player.id === user.userID
 
   const testCheckmate = () => {
-    game.load("6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1")
+    game.load('6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1')
     setPosition(game.fen())
     broadcastFen(game.fen())
   }
 
   const testDraw = () => {
-    game.load("8/8/8/8/8/pk6/8/K7 b - - 1 1")
+    game.load('8/8/8/8/8/pk6/8/K7 b - - 1 1')
     setPosition(game.fen())
     broadcastFen(game.fen())
   }
@@ -120,8 +120,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
       <>
         <button onClick={() => moveRandom()}>Random move</button>
         <button onClick={() => startStop()}>
-          {moving === "Start" ? "Stop" : "Start"} moving
-            </button>
+          {moving === 'Start' ? 'Stop' : 'Start'} moving
+        </button>
         <button onClick={() => reset()}>Reset</button><br />
         <button onClick={() => testCheckmate()}>1 move checkmate</button>
         <button onClick={() => testDraw()}>Draw</button>
@@ -133,17 +133,16 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   return (
-    <div className="center-container">
+    <div className='center-container'>
       <div>
-        {(selectedGame.id === null) ?
-          <p>No game selected</p>
-          :
-          <>
+        {(selectedGame.id === null)
+          ? <p>No game selected</p>
+          : <>
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
             <Buttons />
 
-            {imPlayer() ?
-              <>
+            {imPlayer()
+              ? <>
                 <Player id={selectedGame.host.id} score={selectedGame.host.score} />
                 <Chessboard
                   width={400} position={position}
@@ -153,13 +152,11 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
                       from: move.sourceSquare,
                       to: move.targetSquare,
                       promotion: 'q'
-                    })
-                  }
+                    })}
                 />
                 <Player id={selectedGame.player.id} score={selectedGame.player.score} />
-              </>
-              :
-              <>
+                </>
+              : <>
                 <Player id={selectedGame.player.id} score={selectedGame.player.score} />
                 <Chessboard
                   width={400} position={position}
@@ -169,18 +166,15 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
                       from: move.sourceSquare,
                       to: move.targetSquare,
                       promotion: 'q'
-                    })
-                  }
+                    })}
                 />
                 <Player id={selectedGame.host.id} score={selectedGame.host.score} />
-              </>
-            }
-            {gameOver === "" ? null : <p>{gameOver}</p>}
-          </>
-        }
+              </>}
+            {gameOver === '' ? null : <p>{gameOver}</p>}
+          </>}
       </div>
     </div>
   )
 }
 
-export default Game;
+export default Game

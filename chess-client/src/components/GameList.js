@@ -23,25 +23,25 @@ const GameList = ({ games, emitJoin }) => {
   }
 
   return (
-    <div className="game-list">
+    <div className='game-list'>
       <CreateGameButton />
-      {Object.keys(games).length === 0 ?
-        <p>No ongoing games</p> :
-        <ul>
+      {Object.keys(games).length === 0
+        ? <p>No ongoing games</p>
+        : <ul>
           {Object.keys(games).map((gameID) =>
             <li
               key={gameID}
-              className="clickable"
+              className='clickable'
               onClick={() => spectate(gameID)}
             >
               Game#{gameID.slice(0, 4)}
               <>
-                {(games[gameID].host.id !== user.userID && games[gameID].player.id === null) ?
-                  <button onClick={() => join(gameID)}>Join</button> : null}
+                {(games[gameID].host.id !== user.userID && games[gameID].player.id === null)
+                  ? <button onClick={() => join(gameID)}>Join</button> : null}
               </>
             </li>
           )}
-        </ul>}
+          </ul>}
     </div>
   )
 }
