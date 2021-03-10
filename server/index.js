@@ -13,8 +13,6 @@ const connectedUsers = {}
 /**
  * When client connects to the server 'connection' event is fired
  * Users are added to connectedUsers using the sockets id as key
- * TODO: disconnect users from connections properly
- * TODO: dont allow duplicate socket ids in connections
  */
 io.on('connection', socket => {
   socket.emit('update games', games)
@@ -42,7 +40,8 @@ io.on('connection', socket => {
    * newGameRoom is added to games which is then sent to everyone
    */
   socket.on('create game', (newGameRoom) => {
-    newGameRoom.connections.push(socket.id)
+    newGameRoom.connections = new Set()
+    newGameRoom.connections.add(socket.id)
     games[newGameRoom.id] = newGameRoom
     newGameRoom.host = new Player(newGameRoom.host.id, newGameRoom.host.color)
     io.emit('update games', games)
@@ -57,7 +56,7 @@ io.on('connection', socket => {
    */
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
-    games[gameID].connections.push(socket.id)
+    games[gameID].connections.add(socket.id)
     if (isPlayer) {
       const newPlayer = new Player(userID,
         games[gameID].host.color === "white" ? "black" : "white")
@@ -70,7 +69,6 @@ io.on('connection', socket => {
   /**
    * If player leaves default player is put in leavers place
    * TODO: if host leaves --> close game
-   * TODO: removing socket ids properly from connections
    */
   socket.on('leave game', (userID, gameID) => {
     if (!games[gameID]) return
@@ -83,9 +81,8 @@ io.on('connection', socket => {
       }
     }
 
-    const newConnections = games[gameID].connections
-    const socketIDIndex = newConnections.indexOf(socket.id)
-    if (socketIDIndex >= 0) games[gameID].connections.splice(socketIDIndex, 1)
+    games[gameID].connections.delete(socket.id)
+
     io.emit('update games', games)
     io.emit('game update', games[gameID])
   })
@@ -122,7 +119,7 @@ io.on('connection', socket => {
    * Move is sent to server as validated client side (legality & sent by correct player)
    * @param {*} newState fen string that describes where pieces are on a chess board
    * TODO: broadcast moves only to connected users
-   */ 
+   */
   socket.on('move', (gameID, newState) => {
     if (games[gameID] === undefined) return
     games[gameID] = { ...games[gameID], state: newState }
