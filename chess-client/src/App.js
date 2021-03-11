@@ -20,6 +20,7 @@ const App = () => {
     emitState,
     gameUpdate,
     emitJoin,
+    emitRematch,
     emitLeave,
     emitEnd,
     emitClose
@@ -34,7 +35,7 @@ const App = () => {
   }, [gameUpdate])
 
   return (
-    <Context.Provider value={{ user, setSelectedGame, emitCreateGame }}>
+    <Context.Provider value={{ user, setSelectedGame, emitCreateGame, emitRematch }}>
       <div className='grid-container'>
         <div className='icon' />
         <div className='user'>

@@ -30,10 +30,6 @@ const SocketHook = (userID, username) => {
       setGameUpdate(updatedGame)
     })
 
-    socket.current.on('close game', (newGameList) => {
-      setCurrentGames(newGameList)
-    })
-
     return () => { socket.current.disconnect() }
   }, [userID, username])
 
@@ -45,8 +41,12 @@ const SocketHook = (userID, username) => {
     socket.current.emit('move', gameID, newState)
   }
 
-  const emitJoin = (userID, gameID, isPlayer) => {
-    socket.current.emit('join game', userID, gameID, isPlayer)
+  const emitJoin = (user, gameID, isPlayer) => {
+    socket.current.emit('join game', user, gameID, isPlayer)
+  }
+
+  const emitRematch = (gameID) => {
+    socket.current.emit('new game', gameID)
   }
 
   const emitLeave = (userID, gameID) => {
@@ -68,6 +68,7 @@ const SocketHook = (userID, username) => {
     emitState,
     gameUpdate,
     emitJoin,
+    emitRematch,
     emitLeave,
     emitEnd,
     emitClose

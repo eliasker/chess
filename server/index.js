@@ -43,7 +43,7 @@ io.on('connection', socket => {
     newGameRoom.connections = new Set()
     newGameRoom.connections.add(socket.id)
     games[newGameRoom.id] = newGameRoom
-    newGameRoom.host = new Player(newGameRoom.host.id, newGameRoom.host.color)
+    newGameRoom.host = new Player(newGameRoom.host.id, newGameRoom.host.username, newGameRoom.host.color)
     io.emit('update games', games)
   })
 
@@ -55,11 +55,11 @@ io.on('connection', socket => {
    * Socket is added to games connections for listening events
    * Updated games is sent to everyone 
    */
-  socket.on('join game', (userID, gameID, isPlayer) => {
+  socket.on('join game', (user, gameID, isPlayer) => {
     if (!games[gameID]) return
     games[gameID].connections.add(socket.id)
     if (isPlayer) {
-      const newPlayer = new Player(userID,
+      const newPlayer = new Player(user.userID, user.username,
         games[gameID].host.color === "white" ? "black" : "white")
       games[gameID].player = newPlayer
     }
@@ -101,17 +101,19 @@ io.on('connection', socket => {
     const game = games[gameID]
     switch (result) {
       case 'win':
-        isHost() ?
-          game.host.addScore(1) : game.player.addScore(1)
+        isHost() ? game.host.addScore(1) : game.player.addScore(1)
+        game.winner = isHost() ? game.host.username : game.player.username
         break;
 
       case 'draw':
         game.host.addScore(0.5)
         game.player.addScore(0.5)
+        game.winner = 'draw'
         break;
 
       case 'loss':
         isHost() ? game.player.addScore(1) : game.host.addScore(1)
+        game.winner = isHost() ? game.player.username : game.host.username
         break;
 
       default:
@@ -120,6 +122,16 @@ io.on('connection', socket => {
 
     io.emit('game update', games[gameID])
     io.emit('update games', games)
+  })
+
+  /**
+   * Change colors, reset winner
+   */
+  socket.on('new game', (gameID) => {
+    games[gameID].host.changeColor()
+    games[gameID].player.changeColor()
+    games[gameID].winner = null
+    io.emit('game update', games[gameID])
   })
 
   socket.on('close game', (gameID) => {

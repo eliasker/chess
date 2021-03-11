@@ -5,13 +5,13 @@ import Chessboard from 'chessboardjsx'
 import Context from '../context/Context'
 import { fen, initialGameroom } from '../Constants'
 import Player from './Player'
+import GameOver from './GameOver'
 const game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
-  const { user, setSelectedGame } = useContext(Context)
+  const { user, setSelectedGame, emitRematch } = useContext(Context)
   const [position, setPosition] = useState(null)
   const [moving, setMoving] = useState('Stop')
-  const [gameOver, setGameOver] = useState('')
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -26,19 +26,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   useEffect(() => {
     try {
       game.load(selectedGame.state)
-      if (game.game_over()) {
-        if (game.in_draw()) {
-          setGameOver('Game over: Draw')
-        } else if (game.in_checkmate()) {
-          if (isMyTurn()) {
-            setGameOver('Game over: You lost')
-          } else if (user.userID === selectedGame.host.id || user.userID === selectedGame.player.id) {
-            setGameOver('Game over: You won')
-          } else {
-            setGameOver('Game over')
-          }
-        }
-      } else (setGameOver(''))
       setPosition(game.fen())
     } catch (e) { }
   }, [selectedGame])
@@ -66,10 +53,11 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     }
   }
 
-  const reset = () => {
+  const handleReset = (rematch) => {
     game.reset()
     setPosition(game.fen())
     broadcastFen(game.fen())
+    if (rematch) emitRematch(selectedGame.id)
   }
 
   const handleMove = (move) => {
@@ -85,8 +73,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
       }
     }
   }
-
-
 
   const startStop = () => {
     if (moving === 'Start') setMoving('Stop')
@@ -104,13 +90,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const imPlayer = () => selectedGame.player.id === user.userID
-  const imHost = () => selectedGame.host.id === user.userID 
+  const imHost = () => selectedGame.host.id === user.userID
 
   const handleSurrender = () => {
     if (game.fen() === fen.startingPosition && !game.game_over()) return
     if (imHost() || imPlayer()) {
       emitEnd(selectedGame.id, user.userID, 'loss')
-      reset()
     }
   }
 
@@ -133,7 +118,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
         <button onClick={() => startStop()}>
           {moving === 'Start' ? 'Stop' : 'Start'} moving
         </button>
-        <button onClick={() => reset()}>Reset</button><br />
+        <button onClick={() => handleReset(false)}>Reset</button><br />
         <button onClick={() => testCheckmate()}>1 move checkmate</button>
         <button onClick={() => testDraw()}>Draw</button>
         <button onClick={() => handleSurrender()}>Surrender</button>
@@ -182,7 +167,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
                 />
                 <Player id={selectedGame.host.id} score={selectedGame.host.score} />
               </>}
-            {gameOver === '' ? null : <p>{gameOver}</p>}
+            <GameOver game={selectedGame} user={user} handleReset={handleReset} />
           </>}
       </div>
     </div>

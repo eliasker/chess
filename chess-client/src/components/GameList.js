@@ -10,14 +10,14 @@ const GameList = ({ games, emitJoin }) => {
 
   const spectate = (gameID) => {
     if (games[gameID].host.id !== user.userID) {
-      emitJoin(user.userID, gameID, false)
+      emitJoin(user, gameID, false)
     }
     setSelectedGame(games[gameID])
   }
 
   const join = (gameID) => {
     if (games[gameID].player.id === null) {
-      emitJoin(user.userID, gameID, true)
+      emitJoin(user, gameID, true)
     }
     setSelectedGame(games[gameID])
   }

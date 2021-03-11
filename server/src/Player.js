@@ -2,10 +2,12 @@ class Player {
   time = 0
   score = 0
   id = null
+  username = null
   color = ""
 
-  constructor(userID, color) {
+  constructor(userID, username, color) {
     this.id = userID
+    this.username = username
     this.color = color
   }
 
