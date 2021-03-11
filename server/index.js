@@ -48,11 +48,12 @@ io.on('connection', socket => {
   })
 
   /**
-   * User can join into a game as a spectator or as a player
-   * @param {*} isPlayer true or false 
+   * Event that is sent when user joins to game
+   * @param {boolean} isPlayer - player or spectator 
    * If isPlayer is true a new Player object is created and added as player to the game
    * (Only host and player can play game and only single user can join as a player)
-   * In both cases socket is added to games connections and update sent
+   * Socket is added to games connections for listening events
+   * Updated games is sent to everyone 
    */
   socket.on('join game', (userID, gameID, isPlayer) => {
     if (!games[gameID]) return
@@ -68,10 +69,12 @@ io.on('connection', socket => {
 
   /**
    * If player leaves default player is put in leavers place
-   * TODO: if host leaves --> close game
+   * TODO: if host leaves send 'game closed: host left' -notification
    */
   socket.on('leave game', (userID, gameID) => {
     if (!games[gameID]) return
+
+    games[gameID].connections.delete(socket.id)
     if (userID === games[gameID].player.id) {
       games[gameID].player = {
         time: 0,
@@ -79,9 +82,9 @@ io.on('connection', socket => {
         id: null,
         color: ""
       }
+    } else if (userID === games[gameID].host.id) {
+      delete games[gameID]
     }
-
-    games[gameID].connections.delete(socket.id)
 
     io.emit('update games', games)
     io.emit('game update', games[gameID])
@@ -90,9 +93,8 @@ io.on('connection', socket => {
   /**
    * Server receives this event after a game ending move has been played
    * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
-   * @param {*} playerID player who played the move
-   * @param {*} isWinner did player win or cause a draw
-   * Fun fact: you can't technically play a game losing move
+   * @param {string} playerID player who played the move
+   * @param {boolean} isWinner did player win or cause a draw
    */
   socket.on('game over', (gameID, playerID, isWinner) => {
     if (isWinner) {
@@ -117,7 +119,7 @@ io.on('connection', socket => {
 
   /** 
    * A move is sent to server after client side validation (legality & sent by correct player) as a 
-   * @param {*} newState fen string: describes where pieces are on a chessboard
+   * @param {string} newState - describes where pieces are on board
    * Every client that is connected receives updated game
    */
   socket.on('move', (gameID, newState) => {
