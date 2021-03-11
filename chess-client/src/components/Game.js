@@ -78,13 +78,15 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
       broadcastFen(game.fen())
       if (game.game_over()) {
         if (game.in_draw()) {
-          emitEnd(selectedGame.id, user.userID, false)
+          emitEnd(selectedGame.id, user.userID, 'draw')
         } else {
-          emitEnd(selectedGame.id, user.userID, true)
+          emitEnd(selectedGame.id, user.userID, 'win')
         }
       }
     }
   }
+
+
 
   const startStop = () => {
     if (moving === 'Start') setMoving('Stop')
@@ -102,6 +104,13 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   }
 
   const imPlayer = () => selectedGame.player.id === user.userID
+  const imHost = () => selectedGame.host.id === user.userID 
+
+  const handleSurrender = () => {
+    if (imHost() || imPlayer()) {
+      emitEnd(selectedGame.id, user.userID, 'loss')
+    }
+  }
 
   const testCheckmate = () => {
     game.load('6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1')
@@ -125,6 +134,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
         <button onClick={() => reset()}>Reset</button><br />
         <button onClick={() => testCheckmate()}>1 move checkmate</button>
         <button onClick={() => testDraw()}>Draw</button>
+        <button onClick={() => handleSurrender()}>Surrender</button>
         <button onClick={() => leaveGame()}>Leave game</button>
         <button onClick={() => closeGame()}>Close game</button>
         <br />
@@ -155,7 +165,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
                     })}
                 />
                 <Player id={selectedGame.player.id} score={selectedGame.player.score} />
-                </>
+              </>
               : <>
                 <Player id={selectedGame.player.id} score={selectedGame.player.score} />
                 <Chessboard

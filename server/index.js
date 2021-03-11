@@ -93,21 +93,31 @@ io.on('connection', socket => {
   /**
    * Server receives this event after a game ending move has been played
    * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
-   * @param {string} playerID player who played the move
-   * @param {boolean} isWinner did player win or cause a draw
+   * @param {string} playerID - player who played the move
+   * @param {string} result -  did player win, draw or lose
    */
-  socket.on('game over', (gameID, playerID, isWinner) => {
-    if (isWinner) {
-      if (games[gameID].host.id === playerID) {
-        games[gameID].host.addScore(1)
-      } else {
-        games[gameID].player.addScore(1)
-      }
-    } else {
-      games[gameID].host.addScore(0.5)
-      games[gameID].player.addScore(0.5)
+  socket.on('game over', (gameID, playerID, result) => {
+    const isHost = () => games[gameID].host.id === playerID
+    const game = games[gameID]
+    switch (result) {
+      case 'win':
+        isHost() ?
+          game.host.addScore(1) : game.player.addScore(1)
+        break;
 
+      case 'draw':
+        game.host.addScore(0.5)
+        game.player.addScore(0.5)
+        break;
+
+      case 'loss':
+        isHost() ? game.player.addScore(1) : game.host.addScore(1)
+        break;
+
+      default:
+        break;
     }
+
     io.emit('game update', games[gameID])
     io.emit('update games', games)
   })

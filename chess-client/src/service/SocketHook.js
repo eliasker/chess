@@ -53,8 +53,8 @@ const SocketHook = (userID, username) => {
     socket.current.emit('leave game', userID, gameID)
   }
 
-  const emitEnd = (gameID, userID, isWinner) => {
-    socket.current.emit('game over', gameID, userID, isWinner)
+  const emitEnd = (gameID, userID, result) => {
+    socket.current.emit('game over', gameID, userID, result)
   }
 
   const emitClose = (gameID) => {
