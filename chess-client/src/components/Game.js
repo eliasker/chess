@@ -3,7 +3,7 @@ import Chess from 'chess.js'
 import Chessboard from 'chessboardjsx'
 
 import Context from '../context/Context'
-import { initialGameroom } from '../Constants'
+import { fen, initialGameroom } from '../Constants'
 import Player from './Player'
 const game = new Chess()
 
@@ -107,8 +107,10 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
   const imHost = () => selectedGame.host.id === user.userID 
 
   const handleSurrender = () => {
+    if (game.fen() === fen.startingPosition && !game.game_over()) return
     if (imHost() || imPlayer()) {
       emitEnd(selectedGame.id, user.userID, 'loss')
+      reset()
     }
   }
 
