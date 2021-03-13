@@ -13,11 +13,14 @@ const connectedUsers = {}
 /**
  * When client connects to the server 'connection' event is fired
  * Users are added to connectedUsers using the sockets id as key
- * TODO: Update comments
  */
 io.on('connection', socket => {
   socket.emit('update games', games)
 
+  /**
+   * If disconnected user hosted any games those games are terminated TODO: overkill?
+   * Then user is removed from connectedUsers
+   */
   socket.on('disconnect', () => {
     if (connectedUsers[socket.id]?.hosts.size > 0) {
       for (let gameID of connectedUsers[socket.id].hosts) {
@@ -40,21 +43,32 @@ io.on('connection', socket => {
   })
 
   /**
-   * When user creates game newGameRoom object is sent to server
-   * It has default chess board position and 
-   * Host is replaced with Player object that has same id and color
+   * When user creates game a newGameRoom object is sent to server
+   * Server limits game creation per user to 3
+   * @param {newGameRoom} newGameRoom - object that has default chessboard position hosts data
+   * Host is replaced with a Player object that has same id and color
    * newGameRoom is added to games which is then sent to everyone
+   * @callback callback - currently sends back boolean that tells client if room was accepted
    */
-  socket.on('create game', (newGameRoom) => {
-    newGameRoom.connections = new Set([socket.id])
-    games[newGameRoom.id] = newGameRoom
-    newGameRoom.host = new Player(
-      newGameRoom.host.id,
-      newGameRoom.host.username,
-      newGameRoom.host.color
-    )
-    connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
-    io.emit('update games', games)
+  socket.on('create game', (newGameRoom, callback) => {
+    if (connectedUsers[socket.id]?.hosts.size > 2) {
+      callback({
+        successful: false
+      })
+    } else if (connectedUsers[socket.id]) {
+      newGameRoom.connections = new Set([socket.id])
+      games[newGameRoom.id] = newGameRoom
+      newGameRoom.host = new Player(
+        newGameRoom.host.id,
+        newGameRoom.host.username,
+        newGameRoom.host.color
+      )
+      connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
+      callback({
+        successful: true
+      })
+      io.emit('update games', games)
+    }
   })
 
   /**
@@ -78,7 +92,8 @@ io.on('connection', socket => {
   })
 
   /**
-   * If player leaves default player is put in leavers place
+   * If user is player then default player is put into leavers place
+   * Else if user is host then game is terminated
    * TODO: if host leaves send 'game closed: host left' -notification
    */
   socket.on('leave game', (userID, gameID) => {

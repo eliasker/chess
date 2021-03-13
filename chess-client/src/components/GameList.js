@@ -41,7 +41,7 @@ const GameList = ({ games, emitJoin }) => {
               </>
             </li>
           )}
-          </ul>}
+        </ul>}
     </div>
   )
 }

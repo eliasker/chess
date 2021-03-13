@@ -22,7 +22,7 @@ const App = () => {
     emitJoin,
     emitRematch,
     emitLeave,
-    emitEnd,
+    emitEnd
   } = SocketHook(user.userID, user.username)
 
   useEffect(() => {

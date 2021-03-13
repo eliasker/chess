@@ -79,8 +79,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
           : <>
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
 
-            {(imHost() || imPlayer()) ?
-              <ConfirmButton description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
+            {(imHost() || imPlayer())
+              ? <ConfirmButton description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
               : null}
 
             {imPlayer()
@@ -111,12 +111,12 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                     })}
                 />
                 <Player id={selectedGame.host.id} score={selectedGame.host.score} />
-
-                {(imHost() || imPlayer()) ?
-                  <ConfirmButton description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
-                  : null}
-
               </>}
+
+            {(imHost() || imPlayer())
+              ? <ConfirmButton description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
+              : null}
+
             <GameOver game={selectedGame} user={user} handleReset={handleReset} />
           </>}
       </div>

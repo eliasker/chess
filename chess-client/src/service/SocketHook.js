@@ -33,8 +33,18 @@ const SocketHook = (userID, username) => {
     return () => { socket.current.disconnect() }
   }, [userID, username])
 
+  /**
+   * Create game sends newGameRoom object to server
+   * Server responses if creation was succesful
+   * @param {gameRoom} newGameRoom
+   * @returns {boolean}  response.succesful - No errors and user has less than 3 created games
+   */
   const emitCreateGame = (newGameRoom) => {
-    socket.current.emit('create game', newGameRoom)
+    return new Promise((resolve) => {
+      socket.current.emit('create game', newGameRoom, (response) => {
+        resolve(response.successful)
+      })
+    })
   }
 
   const emitState = (gameID, newState) => {
