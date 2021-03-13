@@ -123,8 +123,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
         <button onClick={() => handleReset(false)}>Reset</button><br />
         <button onClick={() => testCheckmate()}>1 move checkmate</button>
         <button onClick={() => testDraw()}>Draw</button>
-        <ConfirmButton description={"Surrender?"} buttonName={"Surrender"} acceptFunction={handleSurrender} />
-        <ConfirmButton description={"Leave game?"} buttonName={"Leave game"} acceptFunction={leaveGame} />
+        <ConfirmButton description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
+        <ConfirmButton description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
         <button onClick={() => closeGame()}>Close game</button>
         <br />
       </>

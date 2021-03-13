@@ -13,14 +13,20 @@ const connectedUsers = {}
 /**
  * When client connects to the server 'connection' event is fired
  * Users are added to connectedUsers using the sockets id as key
+ * TODO: Update comments
  */
 io.on('connection', socket => {
   socket.emit('update games', games)
 
-  // TODO: Check if disconnecting user is playing (or spectating)
   socket.on('disconnect', () => {
+    if (connectedUsers[socket.id]?.hosts.size > 0) {
+      for (let gameID of connectedUsers[socket.id].hosts) {
+        delete games[gameID]
+      }
+    }
     delete connectedUsers[socket.id]
     io.emit('update users', connectedUsers)
+    io.emit('update games', games)
   })
 
   /**
@@ -29,7 +35,7 @@ io.on('connection', socket => {
    * Updated connectedUsers is then sent to everyone
    */
   socket.on('join server', (user) => {
-    connectedUsers[socket.id] = user
+    connectedUsers[socket.id] = { ...user, hosts: new Set() }
     io.emit('update users', connectedUsers)
   })
 
@@ -40,10 +46,14 @@ io.on('connection', socket => {
    * newGameRoom is added to games which is then sent to everyone
    */
   socket.on('create game', (newGameRoom) => {
-    newGameRoom.connections = new Set()
-    newGameRoom.connections.add(socket.id)
+    newGameRoom.connections = new Set([socket.id])
     games[newGameRoom.id] = newGameRoom
-    newGameRoom.host = new Player(newGameRoom.host.id, newGameRoom.host.username, newGameRoom.host.color)
+    newGameRoom.host = new Player(
+      newGameRoom.host.id,
+      newGameRoom.host.username,
+      newGameRoom.host.color
+    )
+    connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
     io.emit('update games', games)
   })
 
@@ -83,6 +93,7 @@ io.on('connection', socket => {
         color: ""
       }
     } else if (userID === games[gameID].host.id) {
+      connectedUsers[socket.id]?.hosts.delete(gameID)
       delete games[gameID]
     }
 

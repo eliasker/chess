@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { ClickAwayListener } from '@material-ui/core';
+import React, { useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import { ClickAwayListener } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    position: 'relative',
+    position: 'relative'
   },
   dropdown: {
     top: 28,
@@ -13,9 +13,9 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
     border: '1px solid',
     padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-}));
+    backgroundColor: theme.palette.background.paper
+  }
+}))
 
 const ConfirmButton = ({ description, buttonName, acceptFunction }) => {
   const classes = useStyles()
