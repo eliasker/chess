@@ -10,10 +10,9 @@ import ConfirmButton from './ConfirmButton'
 
 const game = new Chess()
 
-const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
+const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch } = useContext(Context)
-  const [position, setPosition] = useState(null)
-  const [moving, setMoving] = useState('Stop')
+  const [position, setPosition] = useState(fen.startingPosition)
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -32,27 +31,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     } catch (e) { }
   }, [selectedGame])
 
-  // Dev utility for making random moves
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (moving === 'Start') moveRandom()
-    }, 300)
-    return () => clearInterval(interval)
-  }, [moving])
-
   const broadcastFen = fen => {
     emitState(selectedGame.id, fen)
-  }
-
-  // Dev function that makes a random move on board (ignoring turn player checking)
-  const moveRandom = () => {
-    if (!game.game_over()) {
-      const moves = game.moves()
-      const move = moves[Math.floor(Math.random() * moves.length)]
-      game.move(move)
-      setPosition(game.fen())
-      broadcastFen(game.fen())
-    }
   }
 
   const handleReset = (rematch) => {
@@ -76,18 +56,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     }
   }
 
-  const startStop = () => {
-    if (moving === 'Start') setMoving('Stop')
-    else setMoving('Start')
-  }
-
   const leaveGame = () => {
     emitLeave(user.userID, selectedGame.id)
-    setSelectedGame(initialGameroom)
-  }
-
-  const closeGame = () => {
-    emitClose(selectedGame.id)
     setSelectedGame(initialGameroom)
   }
 
@@ -101,31 +71,11 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd, emitClose }) => {
     }
   }
 
-  const testCheckmate = () => {
-    game.load('6k1/5ppp/p7/P7/5b2/7P/1r3PP1/3R2K1 w - - 0 1')
-    setPosition(game.fen())
-    broadcastFen(game.fen())
-  }
-
-  const testDraw = () => {
-    game.load('8/8/8/8/8/pk6/8/K7 b - - 1 1')
-    setPosition(game.fen())
-    broadcastFen(game.fen())
-  }
-
   const Buttons = () => {
     return (
       <>
-        <button onClick={() => moveRandom()}>Random move</button>
-        <button onClick={() => startStop()}>
-          {moving === 'Start' ? 'Stop' : 'Start'} moving
-        </button>
-        <button onClick={() => handleReset(false)}>Reset</button><br />
-        <button onClick={() => testCheckmate()}>1 move checkmate</button>
-        <button onClick={() => testDraw()}>Draw</button>
         <ConfirmButton description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
         <ConfirmButton description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
-        <button onClick={() => closeGame()}>Close game</button>
         <br />
       </>
     )

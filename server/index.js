@@ -136,18 +136,13 @@ io.on('connection', socket => {
   })
 
   /**
-   * Change colors, reset winner
+   * Change colors, reset winner status
    */
   socket.on('new game', (gameID) => {
     games[gameID].host.changeColor()
     games[gameID].player.changeColor()
     games[gameID].winner = null
     io.emit('game update', games[gameID])
-  })
-
-  socket.on('close game', (gameID) => {
-    delete games[gameID]
-    io.emit('update games', games)
   })
 
   /** 

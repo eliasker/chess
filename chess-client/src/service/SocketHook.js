@@ -57,10 +57,6 @@ const SocketHook = (userID, username) => {
     socket.current.emit('game over', gameID, userID, result)
   }
 
-  const emitClose = (gameID) => {
-    socket.current.emit('close game', gameID)
-  }
-
   return {
     connectedUsers,
     currentGames,
@@ -70,8 +66,7 @@ const SocketHook = (userID, username) => {
     emitJoin,
     emitRematch,
     emitLeave,
-    emitEnd,
-    emitClose
+    emitEnd
   }
 }
 
