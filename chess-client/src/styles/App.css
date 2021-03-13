@@ -12,18 +12,25 @@
   width: 100vw;
   height: 100vh;
   padding: 10px;
+  border: 2px solid black;
+
 }
 
 .icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #dddddd;
+  background-color: #adadad;
+  border: 2px solid black;
 }
 
 .user {
   position: relative;
-  background-color: #dddddd;
+  background-color: #adadad;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+
 }
 
 .user p {
@@ -33,6 +40,11 @@
 
 .game-list {
   background-color: #adadad;
+  overflow-y: auto;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+
 }
 
 .game-list>ul li {
@@ -49,7 +61,7 @@
 }
 
 .game-list li:nth-child(odd) {
-  background: #cdcdef
+  background: #3d3d3d
 }
 
 .create-game>button {
