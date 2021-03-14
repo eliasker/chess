@@ -42,7 +42,7 @@ const App = () => {
           <p>players online: {Object.keys(connectedUsers).length}</p>
         </div>
 
-        <GameList games={currentGames} emitJoin={emitJoin} />
+        <GameList selectedID={selectedGame.id} games={currentGames} emitJoin={emitJoin} />
 
         <Game
           selectedGame={selectedGame}

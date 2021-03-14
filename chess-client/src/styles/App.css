@@ -13,7 +13,6 @@
   height: 100vh;
   padding: 10px;
   border: 2px solid black;
-
 }
 
 .icon {
@@ -30,7 +29,6 @@
   border-top: 2px solid black;
   border-right: 2px solid black;
   border-bottom: 2px solid black;
-
 }
 
 .user p {
@@ -44,12 +42,11 @@
   border-left: 2px solid black;
   border-right: 2px solid black;
   border-bottom: 2px solid black;
-
 }
 
-.game-list>ul li {
+.game-list > ul li {
   display: list-item;
-  background: #bebebe;
+  background: #adadad;
   padding: 5px 10px;
   color: white;
 }
@@ -59,12 +56,16 @@
   display: flex;
   justify-content: center;
 }
-
+/*
 .game-list li:nth-child(odd) {
-  background: #3d3d3d
+  background: #aaaaaa;
+}*/
+
+.highlight {
+  background-color: #bebebe !important;
 }
 
-.create-game>button {
+.create-game > button {
   margin: 10px auto;
   display: block;
   position: relative;
@@ -79,6 +80,7 @@
 .clickable:hover {
   cursor: pointer;
 }
+
 
 .opposite-container {
   display: flex;

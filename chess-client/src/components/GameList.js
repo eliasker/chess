@@ -5,7 +5,7 @@ import CreateGameButton from './CreateGameButton'
 
 // TODO: num of players joined and spectating
 // if those are not null allow only joining as spectator
-const GameList = ({ games, emitJoin }) => {
+const GameList = ({ selectedID, games, emitJoin }) => {
   const { user, setSelectedGame } = useContext(Context)
 
   const spectate = (gameID) => {
@@ -31,7 +31,7 @@ const GameList = ({ games, emitJoin }) => {
           {Object.keys(games).map((gameID) =>
             <li
               key={gameID}
-              className='clickable'
+              className={`${gameID === selectedID ? 'highlight clickable' : 'clickable'}`}
               onClick={() => spectate(gameID)}
             >
               Game#{gameID.slice(0, 4)}
