@@ -8,7 +8,8 @@ const CreateGameButton = () => {
   const {
     user,
     setSelectedGame,
-    emitCreateGame
+    emitCreateGame,
+    setErrorMessage
   } = useContext(Context)
 
   const handleCreate = async () => {
@@ -17,8 +18,8 @@ const CreateGameButton = () => {
     const newHost = { ...initialPlayer, id: user.userID, username: user.username, color: randomColor }
     const newGameRoom = { ...initialGameroom, id: uuidv4(), host: newHost }
 
-    if (await emitCreateGame(newGameRoom)) setSelectedGame(newGameRoom)
-    // TODO: else setError message
+    const { success, message } = await emitCreateGame(newGameRoom)
+    success ? setSelectedGame(newGameRoom) : setErrorMessage(message)
   }
 
   return (

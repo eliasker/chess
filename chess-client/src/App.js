@@ -25,7 +25,7 @@ const App = () => {
     emitRematch,
     emitLeave,
     emitEnd
-  } = SocketHook(user.userID, user.username)
+  } = SocketHook(user.userID, user.username, setErrorMessage)
 
   useEffect(() => {
     try {
@@ -36,7 +36,7 @@ const App = () => {
   }, [gameUpdate])
 
   return (
-    <Context.Provider value={{ user, setSelectedGame, emitCreateGame, emitRematch }}>
+    <Context.Provider value={{ user, setSelectedGame, emitCreateGame, emitRematch, setErrorMessage }}>
       <div className='grid-container'>
         <div className='icon' />
         <div className='user'>

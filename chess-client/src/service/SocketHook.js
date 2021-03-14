@@ -8,7 +8,7 @@ const ENDPOINT = 'http://localhost:3001/'
 /**
  * Custom hook that handles moving data between client and server
  */
-const SocketHook = (userID, username) => {
+const SocketHook = (userID, username, setErrorMessage) => {
   const [connectedUsers, setConnectedUsers] = useState([])
   const [currentGames, setCurrentGames] = useState([])
   const [gameUpdate, setGameUpdate] = useState(initialGameroom)
@@ -30,8 +30,13 @@ const SocketHook = (userID, username) => {
       setGameUpdate(updatedGame)
     })
 
+    socket.current.on('connect_error',
+      console.log('asdf')
+      //setErrorMessage('Connection to server failed')
+    )
+
     return () => { socket.current.disconnect() }
-  }, [userID, username])
+  }, [userID, username, setErrorMessage])
 
   /**
    * Create game sends newGameRoom object to server
@@ -42,7 +47,7 @@ const SocketHook = (userID, username) => {
   const emitCreateGame = (newGameRoom) => {
     return new Promise((resolve) => {
       socket.current.emit('create game', newGameRoom, (response) => {
-        resolve(response.successful)
+        resolve({ success: response.successful, message: response.message })
       })
     })
   }

@@ -53,7 +53,8 @@ io.on('connection', socket => {
   socket.on('create game', (newGameRoom, callback) => {
     if (connectedUsers[socket.id]?.hosts.size > 2) {
       callback({
-        successful: false
+        successful: false,
+        message: 'You have already created 3 games'
       })
     } else if (connectedUsers[socket.id]) {
       newGameRoom.connections = new Set([socket.id])
@@ -65,7 +66,8 @@ io.on('connection', socket => {
       )
       connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
       callback({
-        successful: true
+        successful: true,
+        message: 'ok'
       })
       io.emit('update games', games)
     }
