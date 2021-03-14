@@ -11,7 +11,7 @@ import ConfirmButton from './ConfirmButton'
 const game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
-  const { user, setSelectedGame, emitRematch } = useContext(Context)
+  const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
 
   const isMyTurn = () => {
@@ -28,7 +28,10 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     try {
       game.load(selectedGame.state)
       setPosition(game.fen())
-    } catch (e) { }
+    } catch (e) {
+      setErrorMessage('Failed to load boardstate')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame])
 
   const broadcastFen = fen => {

@@ -30,10 +30,9 @@ const SocketHook = (userID, username, setErrorMessage) => {
       setGameUpdate(updatedGame)
     })
 
-    socket.current.on('connect_error',
-      console.log('asdf')
-      //setErrorMessage('Connection to server failed')
-    )
+    socket.current.on('connect_error', error => {
+      setErrorMessage('Connection to server failed')
+    })
 
     return () => { socket.current.disconnect() }
   }, [userID, username, setErrorMessage])
