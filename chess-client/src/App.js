@@ -7,12 +7,14 @@ import './styles/App.css'
 import GameList from './components/GameList'
 import SocketHook from './service/SocketHook'
 import { initialGameroom } from './Constants'
+import ErrorMessage from './components/ErrorMessage'
 const id = uuidv4()
 const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
 
-// TODO: routing
 const App = () => {
   const [selectedGame, setSelectedGame] = useState(initialGameroom)
+  const [errorMessage, setErrorMessage] = useState('')
+
   const {
     connectedUsers,
     currentGames,
@@ -50,7 +52,7 @@ const App = () => {
           emitLeave={emitLeave}
           emitEnd={emitEnd}
         />
-
+        <ErrorMessage errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
       </div>
     </Context.Provider>
   )
