@@ -1,6 +1,6 @@
 {
   "name": "chess-server",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "server for chess application",
   "dependencies": {
     "express": "^4.17.1",

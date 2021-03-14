@@ -33,6 +33,7 @@ const App = () => {
         setSelectedGame(gameUpdate)
       }
     } catch (e) { }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameUpdate])
 
   return (
