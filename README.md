@@ -1,5 +1,6 @@
 # chess
-React client and express/socket.io server for playing realtime chess.
+React client and express/socket.io server for playing realtime chess.  
+Stable (fingers crossed :D) version is hosted here: https://eliasker-chess.herokuapp.com/  
 
 ### Installation
 
@@ -16,8 +17,9 @@ React client and express/socket.io server for playing realtime chess.
 `chess\chess-client> npm run test`  
 
 
-Used libraries:
-chess.js - handles the game logic  
-chessboard.jsx - gameboard and pieces  
-socket.io  - realtime communication  
-Jest - unit testing  
+| Used libraries:  |  |
+| ------------- |:-------------:|
+| chess.js      | handles the game logic     |
+| chessboard.jsx      | gameboard and pieces       |
+| socket.io      | realtime communication     |
+| Jest      | unit testing     |
