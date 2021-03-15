@@ -6,7 +6,8 @@ import { initialGameroom } from '../Constants'
 const ENDPOINT = 'http://localhost:3001/'
 
 /**
- * Custom hook that handles moving data between client and server
+ * Custom hook that handles moving data between client and server,
+ * stores and updates states that contain users and games.
  */
 const SocketHook = (userID, username, setErrorMessage) => {
   const [connectedUsers, setConnectedUsers] = useState([])
@@ -14,8 +15,14 @@ const SocketHook = (userID, username, setErrorMessage) => {
   const [gameUpdate, setGameUpdate] = useState(initialGameroom)
   const socket = useRef()
 
+  /**
+   * useEffect that handles receiving events from the server
+   * and updating relevant states after receiving event.
+   * Used endpoint depends if application was ran with 'chess-client> react-scripts start' (development) 
+   * or with 'server> node index.js' (production) that uses files from server/build folder
+   */
   useEffect(() => {
-    socket.current = socketIOClient(ENDPOINT)
+    socket.current = process.env.NODE_ENV === 'development' ? socketIOClient(ENDPOINT) : socketIOClient()
     socket.current.emit('join server', { userID: userID, username: username })
 
     socket.current.on('update users', newUserList => {
@@ -26,6 +33,10 @@ const SocketHook = (userID, username, setErrorMessage) => {
       setCurrentGames(newGameList)
     })
 
+    /**
+     * 'game update' is only sent to users that whose socket is connected to that game
+     * i.e. user is host or at some point joined/spectated the game
+     */
     socket.current.on('game update', (updatedGame) => {
       setGameUpdate(updatedGame)
     })
@@ -41,7 +52,7 @@ const SocketHook = (userID, username, setErrorMessage) => {
    * Create game sends newGameRoom object to server
    * Server responses if creation was succesful
    * @param {gameRoom} newGameRoom
-   * @returns {boolean}  response.succesful - No errors and user has less than 3 created games
+   * @returns {Promise} resolve handles response from server
    */
   const emitCreateGame = (newGameRoom) => {
     return new Promise((resolve) => {
@@ -51,6 +62,9 @@ const SocketHook = (userID, username, setErrorMessage) => {
     })
   }
 
+  /**
+   * Functions that send events to the server
+   */
   const emitState = (gameID, newState) => {
     socket.current.emit('move', gameID, newState)
   }

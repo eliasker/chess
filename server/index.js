@@ -3,7 +3,7 @@ const path = require('path')
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
-const PORT = process.env.PORT || 3001 // TODO: add process.env variable
+const PORT = process.env.PORT || 3001 
 
 const { Player } = require('./src/Player')
 
