@@ -69,7 +69,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
   const handleSurrender = () => {
     if (game.fen() === fen.startingPosition && !game.game_over()) return
-    if (imHost() || imPlayer()) {
+    if ((imHost() || imPlayer()) && selectedGame.winner === null) {
       emitEnd(selectedGame.id, user.userID, 'loss')
     }
   }
@@ -83,7 +83,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
+              ? <ConfirmButton disable={false} description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
               : null}
 
             {imPlayer()
@@ -117,7 +117,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
               </>}
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
+              ? <ConfirmButton disable={position === fen.startingPosition} description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
               : null}
 
             <GameOver game={selectedGame} user={user} handleReset={handleReset} />

@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const ConfirmButton = ({ description, buttonName, acceptFunction }) => {
+const ConfirmButton = ({ disable, description, buttonName, acceptFunction }) => {
   const classes = useStyles()
   const [open, setOpen] = useState(false)
   const handleClickAway = () => setOpen(false)
@@ -30,8 +30,15 @@ const ConfirmButton = ({ description, buttonName, acceptFunction }) => {
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div className={classes.root}>
-        <button onClick={handleClick}>{buttonName}</button>
-        {open ? (<div className={classes.dropdown}>{description}<button onClick={handleClickAway}>Cancel</button><button onClick={handleConfirm}>Confirm</button></div>) : null}
+        <button disabled={disable} onClick={handleClick}>{buttonName}</button>
+        {open ? (
+          <div className={classes.dropdown}>
+            {description}
+            <button onClick={handleClickAway}>
+              Cancel</button>
+            <button onClick={handleConfirm}>Confirm</button>
+          </div>)
+          : null}
       </div>
     </ClickAwayListener>
   )
