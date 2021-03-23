@@ -56,10 +56,6 @@
   display: flex;
   justify-content: center;
 }
-/*
-.game-list li:nth-child(odd) {
-  background: #aaaaaa;
-}*/
 
 .highlight {
   background-color: #bebebe !important;
@@ -80,7 +76,6 @@
 .clickable:hover {
   cursor: pointer;
 }
-
 
 .opposite-container {
   display: flex;
