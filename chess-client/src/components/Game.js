@@ -7,12 +7,14 @@ import { fen, initialGameroom } from '../Constants'
 import Player from './Player'
 import GameOver from './GameOver'
 import ConfirmButton from './ConfirmButton'
+import Status from './Status'
 
 const game = new Chess()
 
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
+  const [status, setStatus] = useState({})
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -23,11 +25,23 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     return false
   }
 
+  const updateStatus = () => {
+    return {
+      isMyTurn: isMyTurn(),
+      turn: game.turn(),
+      over: game.game_over(),
+      draw: game.in_draw(),
+      in_check: game.in_check(),
+      in_check_mate: game.in_checkmate()
+    }
+  }
+
   // useEffect that updates gameboard when selected game is changed
   useEffect(() => {
     try {
       game.load(selectedGame.state)
       setPosition(game.fen())
+      setStatus(updateStatus())
     } catch (e) {
       setErrorMessage('Failed to load boardstate')
     }
@@ -74,6 +88,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
+
+
   return (
     <div className='center-container'>
       <div>
@@ -119,7 +135,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             {(imHost() || imPlayer())
               ? <ConfirmButton disable={position === fen.startingPosition} description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
               : null}
-
+            <Status status={status} />
             <GameOver game={selectedGame} user={user} handleReset={handleReset} />
           </>}
       </div>
