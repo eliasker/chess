@@ -26,7 +26,7 @@ const GameList = ({ selectedID, games, emitJoin }) => {
     <div className='game-list'>
       <CreateGameButton />
       {Object.keys(games).length === 0
-        ? <p>No ongoing games</p>
+        ? <p className='center-text'>No ongoing games</p>
         : <ul>
           {Object.keys(games).map((gameID) =>
             <li
