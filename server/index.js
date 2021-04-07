@@ -3,7 +3,7 @@ const path = require('path')
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http, { cors: { origin: "*" } })
-const PORT = process.env.PORT || 3001 
+const PORT = process.env.PORT || 3001
 
 const { Player } = require('./src/Player')
 
@@ -18,7 +18,7 @@ io.on('connection', socket => {
   socket.emit('update games', games)
 
   /**
-   * If disconnected user hosted any games those games are terminated TODO: overkill?
+   * If disconnected user hosted any games those games are terminated
    * Then user is removed from connectedUsers
    */
   socket.on('disconnect', () => {
@@ -173,6 +173,7 @@ io.on('connection', socket => {
     for (let socketID of games[gameID].connections) {
       io.to(socketID).emit('game update', games[gameID])
     }
+    io.emit('update games', games)
   })
 })
 
