@@ -91,8 +91,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
-
-
   return (
     <div className='center-container'>
       <div>
@@ -105,35 +103,19 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
               ? <ConfirmButton disable={false} description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
               : null}
 
-            {imPlayer()
-              ? <>
-                <Player id={selectedGame.host.id} score={selectedGame.host.score} />
-                <Chessboard
-                  width={400} position={position}
-                  orientation={selectedGame.player.color}
-                  onDrop={(move) =>
-                    handleMove({
-                      from: move.sourceSquare,
-                      to: move.targetSquare,
-                      promotion: 'q'
-                    })}
-                />
-                <Player id={selectedGame.player.id} score={selectedGame.player.score} />
-              </>
-              : <>
-                <Player id={selectedGame.player.id} score={selectedGame.player.score} />
-                <Chessboard
-                  width={400} position={position}
-                  orientation={selectedGame.host.color}
-                  onDrop={(move) =>
-                    handleMove({
-                      from: move.sourceSquare,
-                      to: move.targetSquare,
-                      promotion: 'q'
-                    })}
-                />
-                <Player id={selectedGame.host.id} score={selectedGame.host.score} />
-              </>}
+            <Player player={imPlayer() ? selectedGame.host : selectedGame.player} />
+            <Chessboard
+              width={400} position={position}
+              orientation={imHost() ?
+                selectedGame.host.color : selectedGame.player.color}
+              onDrop={(move) =>
+                handleMove({
+                  from: move.sourceSquare,
+                  to: move.targetSquare,
+                  promotion: 'q'
+                })}
+            />
+            <Player player={imPlayer() ? selectedGame.player : selectedGame.host} />
 
             {(imHost() || imPlayer())
               ? <ConfirmButton disable={position === fen.startingPosition} description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />

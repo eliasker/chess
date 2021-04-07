@@ -1,10 +1,10 @@
 import React from 'react'
 
-const Player = ({ id, score }) => {
+const Player = ({ player }) => {
   return (
     <div className='opposite-container'>
-      {id === null ? <p>No opponent connected</p> : <p>Guest#{id.slice(0, 4)}</p>}
-      <p>Score: {score}</p>
+      {player.id === null ? <p>No opponent connected</p> : <p>Guest#{player.id.slice(0, 4)}</p>}
+      <p>Score: {player.score}</p>
     </div>
   )
 }
