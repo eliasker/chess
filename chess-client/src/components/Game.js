@@ -60,7 +60,10 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   }
 
   const handleMove = (move) => {
-    if (isMyTurn() && game.move(move)) {
+    if (selectedGame.player.id === null || selectedGame.host.id === null) {
+      setErrorMessage('Wait for opponent or play as opponent from another window')
+    }
+    else if (isMyTurn() && game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())
       if (game.game_over()) {
