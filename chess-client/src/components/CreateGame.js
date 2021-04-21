@@ -5,7 +5,7 @@ import { ClickAwayListener, FormControl, FormControlLabel, FormLabel, Radio, Rad
 
 import { initialPlayer, initialGameroom } from '../Constants'
 
-const CreateGameButton = () => {
+const CreateGame = () => {
   const [open, setOpen] = useState(false)
   const colors = ['white', 'black', 'random']
   const timeOptions = ['casual', '1', '3', '5', '10']
@@ -90,4 +90,4 @@ const CreateGameButton = () => {
   )
 }
 
-export default CreateGameButton
+export default CreateGame

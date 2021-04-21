@@ -15,6 +15,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
   const [status, setStatus] = useState({})
+  // TODO: timer for host and player
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -25,6 +26,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     return false
   }
 
+  // TODO: game over because of time
   const updateStatus = () => {
     return {
       isMyTurn: isMyTurn(),
@@ -36,6 +38,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
+  // TODO: start timer when receiving move
   // useEffect that updates gameboard when selected game is changed
   useEffect(() => {
     try {
@@ -48,8 +51,9 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame])
 
+  // TODO: state for timer, send time, stop timer and reset
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen)
+    emitState(selectedGame.id, fen, user.userID, 1)
   }
 
   const handleReset = (rematch) => {

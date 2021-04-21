@@ -62,7 +62,8 @@ io.on('connection', socket => {
       newGameRoom.host = new Player(
         newGameRoom.host.id,
         newGameRoom.host.username,
-        newGameRoom.host.color
+        newGameRoom.host.color,
+        newGameRoom.host.time
       )
       connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
       callback({
@@ -86,7 +87,8 @@ io.on('connection', socket => {
     games[gameID].connections.add(socket.id)
     if (isPlayer) {
       const newPlayer = new Player(user.userID, user.username,
-        games[gameID].host.color === "white" ? "black" : "white")
+        games[gameID].host.color === 'white' ? 'black' : 'white',
+        games[gameID].time)
       games[gameID].player = newPlayer
     }
     io.emit('game update', games[gameID])
@@ -153,11 +155,13 @@ io.on('connection', socket => {
   })
 
   /**
-   * Change colors, reset winner status
+   * Change colors, reset winner status, reset timers
    */
   socket.on('new game', (gameID) => {
     games[gameID].host.changeColor()
+    games[gameID].host.setTime(games[gameID].time)
     games[gameID].player.changeColor()
+    games[gameID].player.setTime(games[gameID].time)
     games[gameID].winner = null
     io.emit('game update', games[gameID])
   })
@@ -167,9 +171,17 @@ io.on('connection', socket => {
    * @param {string} newState - describes where pieces are on board
    * Every client that is connected receives updated game
    */
-  socket.on('move', (gameID, newState) => {
+  socket.on('move', (gameID, newState, userID, spentTime) => {
     if (games[gameID] === undefined) return
+
     games[gameID] = { ...games[gameID], state: newState }
+    if (games[gameID].time !== null) {
+      userID === games[gameID].host.id ?
+        games[gameID].host.subtractTime(spentTime) :
+        games[gameID].player.subtractTime(spentTime)
+    }
+    console.log('host: ', games[gameID].host.time, 'player: ', games[gameID].player.time)
+
     for (let socketID of games[gameID].connections) {
       io.to(socketID).emit('game update', games[gameID])
     }

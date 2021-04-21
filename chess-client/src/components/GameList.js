@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 
 import Context from '../context/Context'
-import CreateGameButton from './CreateGameButton'
+import CreateGame from './CreateGame'
 
 // TODO: num of players joined and spectating
 // if those are not null allow only joining as spectator
@@ -24,7 +24,7 @@ const GameList = ({ selectedID, games, emitJoin }) => {
 
   return (
     <div className='game-list'>
-      <CreateGameButton />
+      <CreateGame />
       {Object.keys(games).length === 0
         ? <p className='center-text'>No ongoing games</p>
         : <ul>
