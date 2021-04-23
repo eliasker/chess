@@ -15,6 +15,8 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
   const [status, setStatus] = useState({})
+  const [p1UsedTime, setP1UsedTime] = useState(0)
+  const [p2UsedTime, setP2UsedTime] = useState(0)
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -49,7 +51,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
-  // TODO: start timer when receiving move
   // useEffect that updates gameboard when selected game is changed
   useEffect(() => {
     try {
@@ -62,9 +63,11 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame])
 
-  // TODO: state for timer, send time, stop timer and reset
+  // TODO:FIXME: p1UsedTime is always one move behind, doesn't update 
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen, user.userID, 1)
+    console.log('p1', p1UsedTime, 'p2', p2UsedTime)
+    emitState(selectedGame.id, fen, user.userID, p1UsedTime)
+    setP1UsedTime(0)
   }
 
   const handleReset = (rematch) => {
@@ -122,6 +125,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
               player={status.player1}
               gameStarted={status.started}
               timerOn={isPlayersTurn(status.player1.id)}
+              setTimeUsed={setP1UsedTime}
             />
             <Chessboard
               width={400} position={position}
@@ -138,6 +142,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
               player={status.player2}
               gameStarted={status.started}
               timerOn={isPlayersTurn(status.player2.id)}
+              setTimeUsed={setP2UsedTime}
             />
 
             {(imHost() || imPlayer())

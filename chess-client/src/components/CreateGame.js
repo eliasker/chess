@@ -24,7 +24,7 @@ const CreateGame = () => {
     const newHost = {
       ...initialPlayer,
       id: user.userID,
-      time: isNaN(time) ? null : 60 * +time,
+      time: isNaN(time) ? null : 60000 * +time,
       username: user.username,
       color: selectedColor === 'random' ?
         (Math.random() > 0.5 ? 'white' : 'black') : selectedColor
@@ -34,7 +34,7 @@ const CreateGame = () => {
       ...initialGameroom,
       id: uuidv4(),
       host: newHost,
-      time: isNaN(time) ? null : 60 * +time,
+      time: isNaN(time) ? null : 60000 * +time,
       increment: isNaN(increment) ? null : +increment
     }
 

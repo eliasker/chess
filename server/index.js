@@ -180,7 +180,7 @@ io.on('connection', socket => {
         games[gameID].host.subtractTime(spentTime) :
         games[gameID].player.subtractTime(spentTime)
     }
-    console.log('host: ', games[gameID].host.time, 'player: ', games[gameID].player.time)
+    console.log('spenttime', (spentTime / 1000), 'host: ', (games[gameID].host.time / 1000), 'player: ', (games[gameID].player.time / 1000))
 
     for (let socketID of games[gameID].connections) {
       io.to(socketID).emit('game update', games[gameID])
