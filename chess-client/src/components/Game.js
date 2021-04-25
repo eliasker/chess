@@ -65,7 +65,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
   // TODO:FIXME: p1UsedTime is always one move behind, doesn't update 
   const broadcastFen = fen => {
-    console.log('p1', p1UsedTime, 'p2', p2UsedTime)
     emitState(selectedGame.id, fen, user.userID, p2UsedTime)
     setP1UsedTime(0)
     setP2UsedTime(0)

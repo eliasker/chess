@@ -36,7 +36,7 @@ const CreateGame = () => {
       id: uuidv4(),
       host: newHost,
       time: isNaN(time) ? null : 60000 * +time,
-      increment: isNaN(increment) ? null : +increment
+      increment: isNaN(increment) ? null : 1000 * +increment
     }
 
     const { success, message } = await emitCreateGame(newGameRoom)

@@ -175,12 +175,18 @@ io.on('connection', socket => {
     if (games[gameID] === undefined) return
 
     games[gameID] = { ...games[gameID], state: newState }
-    if (games[gameID].time !== null) {
-      userID === games[gameID].host.id ?
-        games[gameID].host.subtractTime(spentTime) :
-        games[gameID].player.subtractTime(spentTime)
+    const isHost = games[gameID].host.id === userID
+    isHost ?
+      games[gameID].host.subtractTime(spentTime) :
+      games[gameID].player.subtractTime(spentTime)
+
+    if (games[gameID].increment !== null) {
+      isHost ?
+        games[gameID].host.addTime(games[gameID].increment) :
+        games[gameID].player.addTime(games[gameID].increment)
     }
-    console.log('spenttime', (spentTime / 1000), 'host: ', (games[gameID].host.time / 1000), 'player: ', (games[gameID].player.time / 1000))
+
+    //console.log('spenttime', (spentTime / 1000), 'host: ', (games[gameID].host.time / 1000), 'player: ', (games[gameID].player.time / 1000), games[gameID].increment)
 
     for (let socketID of games[gameID].connections) {
       io.to(socketID).emit('game update', games[gameID])
