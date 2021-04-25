@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react'
 import Context from '../context/Context'
 import { v4 as uuidv4 } from 'uuid'
-import { ClickAwayListener, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core'
+import { ClickAwayListener } from '@material-ui/core'
 
 import { initialPlayer, initialGameroom } from '../Constants'
+import CustomRadioGroup from './CustomRadioGroup'
 
 const CreateGame = () => {
   const [open, setOpen] = useState(false)
@@ -41,20 +42,6 @@ const CreateGame = () => {
     const { success, message } = await emitCreateGame(newGameRoom)
     success ? setSelectedGame(newGameRoom) : setErrorMessage(message)
     setOpen(false)
-  }
-
-  const CustomRadioGroup = ({ label, options, optionState, setOption }) => {
-    const handleChange = (event) => setOption(event.target.value)
-    return (
-      <FormControl component='fieldset'>
-        <FormLabel component='legend'>{label}</FormLabel>
-        <RadioGroup aria-label={label} name={label} value={optionState} onChange={handleChange}>
-          {options.map((o, index) =>
-            <FormControlLabel key={`${label}option${index}`} value={o} control={<Radio />} label={o} />
-          )}
-        </RadioGroup>
-      </FormControl>
-    )
   }
 
   // TODO: option to set gameRoom invite only
