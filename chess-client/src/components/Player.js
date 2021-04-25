@@ -2,7 +2,7 @@ import React from 'react'
 
 import Timer from './Timer'
 
-const Player = ({ player, gameStarted, timerOn, setTimeUsed }) => {
+const Player = ({ player, gameStarted, timerOn, setTimeUsed, handleOutOfTime }) => {
   return (
     <div className='opposite-container'>
       {player.id === null ? <p>No opponent connected</p> : <p>Guest#{player.id.slice(0, 4)}</p>}
@@ -12,6 +12,7 @@ const Player = ({ player, gameStarted, timerOn, setTimeUsed }) => {
         gameStarted={gameStarted}
         timerOn={timerOn}
         setTimeUsed={setTimeUsed}
+        handleOutOfTime={handleOutOfTime}
       />
 
       <p>Score: {player.score}</p>

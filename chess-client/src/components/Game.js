@@ -66,8 +66,9 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   // TODO:FIXME: p1UsedTime is always one move behind, doesn't update 
   const broadcastFen = fen => {
     console.log('p1', p1UsedTime, 'p2', p2UsedTime)
-    emitState(selectedGame.id, fen, user.userID, p1UsedTime)
+    emitState(selectedGame.id, fen, user.userID, p2UsedTime)
     setP1UsedTime(0)
+    setP2UsedTime(0)
   }
 
   const handleReset = (rematch) => {
@@ -109,6 +110,10 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
+  const handleOutOfTime = () => {
+    if (isMyTurn()) emitEnd(selectedGame.id, user.userID, 'loss')
+  }
+
   return (
     <div className='center-container'>
       <div>
@@ -118,14 +123,19 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton disable={false} description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
+              ? <ConfirmButton
+                disable={false}
+                description='Leave game?'
+                buttonName='Leave game'
+                acceptFunction={leaveGame} />
               : null}
 
             <Player
               player={status.player1}
               gameStarted={status.started}
-              timerOn={isPlayersTurn(status.player1.id)}
+              timerOn={isPlayersTurn(status.player1.id) && selectedGame.winner === null}
               setTimeUsed={setP1UsedTime}
+              handleOutOfTime={handleOutOfTime}
             />
             <Chessboard
               width={400} position={position}
@@ -141,12 +151,15 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <Player
               player={status.player2}
               gameStarted={status.started}
-              timerOn={isPlayersTurn(status.player2.id)}
+              timerOn={isPlayersTurn(status.player2.id) && selectedGame.winner === null}
               setTimeUsed={setP2UsedTime}
+              handleOutOfTime={handleOutOfTime}
             />
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton disable={position === fen.startingPosition} description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
+              ? <ConfirmButton disable={position === fen.startingPosition}
+                description='Surrender?' buttonName='Surrender'
+                acceptFunction={handleSurrender} />
               : null}
             <Status status={status} />
             <GameOver game={selectedGame} user={user} handleReset={handleReset} />
