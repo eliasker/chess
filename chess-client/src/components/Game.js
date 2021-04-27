@@ -11,37 +11,37 @@ import Status from './Status'
 
 const game = new Chess()
 
+const msToTimeStr = (milliseconds) => {
+  const minutes = Math.floor((milliseconds) / 60000)
+  const seconds = (((milliseconds) % 60000) / 1000).toFixed(0)
+  const minStr = minutes < 10 ? `0${minutes}` : `${minutes}`
+  const secStr = seconds < 10 ? `0${seconds}` : `${seconds}`
+  return `${minStr}:${secStr}`
+}
+
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
   const [status, setStatus] = useState({})
-  const [p1UsedTime, setP1UsedTime] = useState(0)
-  const [p2UsedTime, setP2UsedTime] = useState(0)
+  const [p1Timer, setP1Timer] = useState('')
+  const [p2Timer, setP2Timer] = useState('')
+  // TODO: separate turn timers for both players
+  const [myTurnTimer, setMyTurnTimer] = useState(0)
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
-      return selectedGame.host.color.split('')[0] === game.turn()
+      return selectedGame.host.color[0] === game.turn()
     } else if (user.userID === selectedGame.player.id) {
-      return selectedGame.player.color.split('')[0] === game.turn()
+      return selectedGame.player.color[0] === game.turn()
     }
     return false
   }
 
-  const gameHasStarted = () => {
-    return (selectedGame.player.id !== null && !game.game_over())
-  }
-
-  const isPlayersTurn = (playerID) => {
-    if (selectedGame.host.id === playerID) return game.turn() === selectedGame.host.color[0]
-    else if (selectedGame.player.id === playerID) return game.turn() === selectedGame.player.color[0]
-  }
-
-  // TODO: game over because of time
   const updateStatus = () => {
     return {
       player1: imPlayer() ? selectedGame.host : selectedGame.player,
       player2: imPlayer() ? selectedGame.player : selectedGame.host,
-      started: gameHasStarted(),
+      started: (selectedGame.player.id !== null && !game.game_over()),
       isMyTurn: isMyTurn(),
       turn: game.turn(),
       over: game.game_over(),
@@ -63,17 +63,45 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame])
 
-  // TODO:FIXME: p1UsedTime is always one move behind, doesn't update 
+  useEffect(() => {
+    if (selectedGame.time === null
+      || !status.started
+      || selectedGame.winner !== null) return
+
+    let usedTime = 0
+    const isP1Turn = game.turn() === status.player1.color[0]
+    const currPlayerTimeLeft = isP1Turn ? status.player1.time : status.player2.time
+
+    const timer = setInterval(() => {
+      usedTime += 100
+
+      if (usedTime % 1000 === 0) {
+        const str = msToTimeStr(currPlayerTimeLeft - usedTime)
+        isP1Turn ? setP1Timer(str) : setP2Timer(str)
+      }
+
+      if (usedTime === currPlayerTimeLeft) {
+        if (isMyTurn()) emitEnd(selectedGame.id, user.userID, 'loss')
+        isP1Turn ? setP1Timer('00:00') : setP2Timer('00:00')
+      }
+
+    }, 100)
+    return () => {
+      clearTimeout(timer)
+      if (status.isMyTurn) setMyTurnTimer(usedTime)
+    }
+  }, [status])
+
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen, user.userID, p2UsedTime)
-    setP1UsedTime(0)
-    setP2UsedTime(0)
+    emitState(selectedGame.id, fen, user.userID, myTurnTimer)
+    setMyTurnTimer(0)
   }
 
   const handleReset = (rematch) => {
     game.reset()
     setPosition(game.fen())
     broadcastFen(game.fen())
+    setMyTurnTimer(0)
     if (rematch) emitRematch(selectedGame.id)
   }
 
@@ -109,10 +137,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
   }
 
-  const handleOutOfTime = () => {
-    if (isMyTurn()) emitEnd(selectedGame.id, user.userID, 'loss')
-  }
-
   return (
     <div className='center-container'>
       <div>
@@ -131,10 +155,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
             <Player
               player={status.player1}
-              gameStarted={status.started}
-              timerOn={isPlayersTurn(status.player1.id) && selectedGame.winner === null}
-              setTimeUsed={setP1UsedTime}
-              handleOutOfTime={handleOutOfTime}
+              timer={p1Timer}
             />
             <Chessboard
               width={400} position={position}
@@ -149,10 +170,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             />
             <Player
               player={status.player2}
-              gameStarted={status.started}
-              timerOn={isPlayersTurn(status.player2.id) && selectedGame.winner === null}
-              setTimeUsed={setP2UsedTime}
-              handleOutOfTime={handleOutOfTime}
+              timer={p2Timer}
             />
 
             {(imHost() || imPlayer())
