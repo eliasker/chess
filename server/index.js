@@ -9,6 +9,7 @@ const { Player } = require('./src/Player')
 
 const games = {}
 const connectedUsers = {}
+let serverInterval = null
 
 /**
  * When client connects to the server 'connection' event is fired
@@ -16,6 +17,64 @@ const connectedUsers = {}
  */
 io.on('connection', socket => {
   socket.emit('update games', games)
+
+  const updateGameTimes = () => {
+    const numberOfGames = Object.keys(games).length
+    if (numberOfGames === 0) {
+      clearInterval(serverInterval)
+      console.log('clearing interval')
+    } else {
+      Object.keys(games).forEach(gameID => {
+        const current = games[gameID]
+        if (current.time !== null && current.winner === null && current.player.id !== null) {
+          const playerInTurn = current.turn === current.host.color[0] ? current.host : current.player
+          playerInTurn.time > 0 ?
+            playerInTurn.subtractTime(100) :
+            handleGameOverEvent(current.id, playerInTurn.id, 'loss')
+        }
+      })
+    }
+  }
+
+  const startInterval = () => {
+    serverInterval = setInterval(updateGameTimes, 100)
+  }
+
+  /**
+   * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
+   * and sets games winner status
+   * @param {*} gameID What game ended
+   * @param {*} playerID Who caused game to end
+   * @param {*} result Game ended in 'win', 'draw' or 'losss'
+   */
+  const handleGameOverEvent = (gameID, playerID, result) => {
+    const isHost = () => games[gameID].host?.id === playerID
+    const game = games[gameID]
+    switch (result) {
+      case 'win':
+        isHost() ? game.host.addScore(1) : game.player.addScore(1)
+        game.winner = isHost() ? game.host.username : game.player.username
+        break;
+
+      case 'draw':
+        game.host.addScore(0.5)
+        game.player.addScore(0.5)
+        game.winner = 'draw'
+        break;
+
+      case 'loss':
+        isHost() ? game.player.addScore(1) : game.host.addScore(1)
+        game.winner = isHost() ? game.player.username : game.host.username
+        break;
+
+      default:
+        break;
+    }
+
+    io.emit('game update', games[gameID])
+    io.emit('update games', games)
+  }
+
 
   /**
    * If disconnected user hosted any games those games are terminated
@@ -70,6 +129,9 @@ io.on('connection', socket => {
         successful: true,
         message: 'ok'
       })
+
+      if (Object.keys(games).length === 1) startInterval()
+
       io.emit('update games', games)
     }
   })
@@ -121,37 +183,13 @@ io.on('connection', socket => {
   })
 
   /**
-   * Server receives this event after a game ending move has been played
-   * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
+   * Server receives this event after a game ends
+   * then calls handler function
    * @param {string} playerID - player who played the move
    * @param {string} result -  did player win, draw or lose
    */
   socket.on('game over', (gameID, playerID, result) => {
-    const isHost = () => games[gameID].host.id === playerID
-    const game = games[gameID]
-    switch (result) {
-      case 'win':
-        isHost() ? game.host.addScore(1) : game.player.addScore(1)
-        game.winner = isHost() ? game.host.username : game.player.username
-        break;
-
-      case 'draw':
-        game.host.addScore(0.5)
-        game.player.addScore(0.5)
-        game.winner = 'draw'
-        break;
-
-      case 'loss':
-        isHost() ? game.player.addScore(1) : game.host.addScore(1)
-        game.winner = isHost() ? game.player.username : game.host.username
-        break;
-
-      default:
-        break;
-    }
-
-    io.emit('game update', games[gameID])
-    io.emit('update games', games)
+    handleGameOverEvent(gameID, playerID, result)
   })
 
   /**
@@ -163,6 +201,7 @@ io.on('connection', socket => {
     games[gameID].player.changeColor()
     games[gameID].player.setTime(games[gameID].time)
     games[gameID].winner = null
+    games[gameID].turn = 'w'
     io.emit('game update', games[gameID])
   })
 
@@ -171,22 +210,18 @@ io.on('connection', socket => {
    * @param {string} newState - describes where pieces are on board
    * Every client that is connected receives updated game
    */
-  socket.on('move', (gameID, newState, userID, spentTime) => {
+  socket.on('move', (gameID, newState, userID) => {
     if (games[gameID] === undefined) return
 
     games[gameID] = { ...games[gameID], state: newState }
     const isHost = games[gameID].host.id === userID
-    isHost ?
-      games[gameID].host.subtractTime(spentTime) :
-      games[gameID].player.subtractTime(spentTime)
 
+    games[gameID].turn = games[gameID].turn === 'w' ? 'b' : 'w'
     if (games[gameID].increment !== null) {
       isHost ?
         games[gameID].host.addTime(games[gameID].increment) :
         games[gameID].player.addTime(games[gameID].increment)
     }
-
-    //console.log('spenttime', (spentTime / 1000), 'host: ', (games[gameID].host.time / 1000), 'player: ', (games[gameID].player.time / 1000), games[gameID].increment)
 
     for (let socketID of games[gameID].connections) {
       io.to(socketID).emit('game update', games[gameID])

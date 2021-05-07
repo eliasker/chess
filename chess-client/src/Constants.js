@@ -16,6 +16,7 @@ export const initialGameroom = {
   winner: null,
   host: initialPlayer,
   player: initialPlayer,
+  turn: 'w',
   connections: [],
   time: null,
   increment: null

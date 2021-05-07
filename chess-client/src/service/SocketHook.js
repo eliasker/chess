@@ -65,9 +65,8 @@ const SocketHook = (userID, username, setErrorMessage) => {
   /**
    * Functions that send events to the server
    */
-  const emitState = (gameID, newState, userID, spentTime) => {
-    console.log('move', spentTime)
-    socket.current.emit('move', gameID, newState, userID, spentTime)
+  const emitState = (gameID, newState, userID) => {
+    socket.current.emit('move', gameID, newState, userID)
   }
 
   const emitJoin = (user, gameID, isPlayer) => {

@@ -25,8 +25,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const [status, setStatus] = useState({})
   const [p1Timer, setP1Timer] = useState('')
   const [p2Timer, setP2Timer] = useState('')
-  // TODO: separate turn timers for both players
-  const [myTurnTimer, setMyTurnTimer] = useState(0)
 
   const isMyTurn = () => {
     if (user.userID === selectedGame.host.id) {
@@ -64,9 +62,11 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   }, [selectedGame])
 
   useEffect(() => {
-    if (selectedGame.time === null
-      || !status.started
-      || selectedGame.winner !== null) return
+    if (
+      selectedGame.time === null
+      || status.started === false
+      || selectedGame.winner !== null
+    ) return
 
     let usedTime = 0
     const isP1Turn = game.turn() === status.player1.color[0]
@@ -80,28 +80,24 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
         isP1Turn ? setP1Timer(str) : setP2Timer(str)
       }
 
-      if (usedTime === currPlayerTimeLeft) {
-        if (isMyTurn()) emitEnd(selectedGame.id, user.userID, 'loss')
+      if (usedTime > currPlayerTimeLeft) {
         isP1Turn ? setP1Timer('00:00') : setP2Timer('00:00')
       }
 
     }, 100)
     return () => {
       clearTimeout(timer)
-      if (status.isMyTurn) setMyTurnTimer(usedTime)
     }
   }, [status])
 
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen, user.userID, myTurnTimer)
-    setMyTurnTimer(0)
+    emitState(selectedGame.id, fen, user.userID)
   }
 
   const handleReset = (rematch) => {
     game.reset()
     setPosition(game.fen())
     broadcastFen(game.fen())
-    setMyTurnTimer(0)
     if (rematch) emitRematch(selectedGame.id)
   }
 
