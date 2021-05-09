@@ -6,7 +6,7 @@ export const initialPlayer = {
   time: 0,
   score: 0,
   id: null,
-  username: null,
+  name: null,
   color: ''
 }
 

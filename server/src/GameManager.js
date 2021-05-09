@@ -112,7 +112,7 @@ class GameManager {
     switch (result) {
       case 'win':
         isHost ? game.host.addScore(1) : game.player.addScore(1)
-        game.winner = isHost ? game.host.username : game.player.username
+        game.winner = isHost ? game.host.name : game.player.name
         break;
 
       case 'draw':
@@ -123,7 +123,7 @@ class GameManager {
 
       case 'loss':
         isHost ? game.player.addScore(1) : game.host.addScore(1)
-        game.winner = isHost ? game.player.username : game.host.username
+        game.winner = isHost ? game.player.name : game.host.name
         break;
 
       default:

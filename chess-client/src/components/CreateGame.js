@@ -26,7 +26,7 @@ const CreateGame = () => {
       ...initialPlayer,
       id: user.id,
       time: isNaN(time) ? null : 60000 * +time,
-      username: user.username,
+      name: user.name,
       color: selectedColor === 'random' ?
         (Math.random() > 0.5 ? 'white' : 'black') : selectedColor
     }

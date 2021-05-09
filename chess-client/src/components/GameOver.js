@@ -2,7 +2,7 @@ import React from 'react'
 
 const GameOver = ({ game, user, handleReset }) => {
   const gameoverText = `Game over: ${game.winner === 'draw' ? 'draw'
-    : (game.winner === user.username ? 'You won' : 'You lost')}`
+    : (game.winner === user.name ? 'You won' : 'You lost')}`
   return (
     <>{game.winner === null ? null
       : <>
