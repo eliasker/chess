@@ -8,36 +8,36 @@ import CreateGame from './CreateGame'
 const GameList = ({ selectedID, games, emitJoin }) => {
   const { user, setSelectedGame } = useContext(Context)
 
-  const spectate = (gameID) => {
-    if (games[gameID].host.id !== user.id) {
-      emitJoin(user, gameID, false)
+  const spectate = (game) => {
+    if (game.host.id !== user.id) {
+      emitJoin(user, game.id, false)
     }
-    setSelectedGame(games[gameID])
+    setSelectedGame(game)
   }
 
-  const join = (gameID) => {
-    if (games[gameID].player.id === null) {
-      emitJoin(user, gameID, true)
+  const join = (game) => {
+    if (game.player.id === null) {
+      emitJoin(user, game.id, true)
     }
-    setSelectedGame(games[gameID])
+    setSelectedGame(game)
   }
 
   return (
     <div className='game-list'>
       <CreateGame />
-      {Object.keys(games).length === 0
+      {games.length === 0
         ? <p className='center-text'>No ongoing games</p>
         : <ul>
-          {Object.keys(games).map((gameID) =>
+          {games.map((game) =>
             <li
-              key={gameID}
-              className={`${gameID === selectedID ? 'highlight clickable' : 'clickable'}`}
-              onClick={() => spectate(gameID)}
+              key={game.id}
+              className={`${game.id === selectedID ? 'highlight clickable' : 'clickable'}`}
+              onClick={() => spectate(game)}
             >
-              Game#{gameID.slice(0, 4)}
+              Game#{game.id.slice(0, 4)}
               <>
-                {(games[gameID].host.id !== user.id && games[gameID].player.id === null)
-                  ? <button onClick={() => join(gameID)}>Join</button> : null}
+                {(game.host.id !== user.id && game.player.id === null)
+                  ? <button onClick={() => join(game)}>Join</button> : null}
               </>
             </li>
           )}

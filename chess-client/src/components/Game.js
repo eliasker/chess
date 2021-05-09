@@ -23,8 +23,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
   const [status, setStatus] = useState({})
-  const [p1Timer, setP1Timer] = useState('')
-  const [p2Timer, setP2Timer] = useState('')
 
   const isMyTurn = () => {
     if (user.id === selectedGame.host.id) {
@@ -60,35 +58,6 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame])
-
-  useEffect(() => {
-    if (
-      selectedGame.time === null
-      || status.started === false
-      || selectedGame.winner !== null
-    ) return
-
-    let usedTime = 0
-    const isP1Turn = game.turn() === status.player1.color[0]
-    const currPlayerTimeLeft = isP1Turn ? status.player1.time : status.player2.time
-
-    const timer = setInterval(() => {
-      usedTime += 100
-
-      if (usedTime % 1000 === 0) {
-        const str = msToTimeStr(currPlayerTimeLeft - usedTime)
-        isP1Turn ? setP1Timer(str) : setP2Timer(str)
-      }
-
-      if (usedTime > currPlayerTimeLeft) {
-        isP1Turn ? setP1Timer('00:00') : setP2Timer('00:00')
-      }
-
-    }, 100)
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [status])
 
   const broadcastFen = fen => {
     emitState(selectedGame.id, fen, user.id)
@@ -151,7 +120,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
 
             <Player
               player={status.player1}
-              timer={p1Timer}
+              timer={msToTimeStr(status.player1.time)}
             />
             <Chessboard
               width={400} position={position}
@@ -166,7 +135,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             />
             <Player
               player={status.player2}
-              timer={p2Timer}
+              timer={msToTimeStr(status.player2.time)}
             />
 
             {(imHost() || imPlayer())
