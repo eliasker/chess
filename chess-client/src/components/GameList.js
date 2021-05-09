@@ -9,7 +9,7 @@ const GameList = ({ selectedID, games, emitJoin }) => {
   const { user, setSelectedGame } = useContext(Context)
 
   const spectate = (gameID) => {
-    if (games[gameID].host.id !== user.userID) {
+    if (games[gameID].host.id !== user.id) {
       emitJoin(user, gameID, false)
     }
     setSelectedGame(games[gameID])
@@ -36,7 +36,7 @@ const GameList = ({ selectedID, games, emitJoin }) => {
             >
               Game#{gameID.slice(0, 4)}
               <>
-                {(games[gameID].host.id !== user.userID && games[gameID].player.id === null)
+                {(games[gameID].host.id !== user.id && games[gameID].player.id === null)
                   ? <button onClick={() => join(gameID)}>Join</button> : null}
               </>
             </li>

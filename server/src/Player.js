@@ -2,12 +2,12 @@ class Player {
   time = null
   score = 0
   id = null
-  username = null
+  name = null
   color = ""
 
-  constructor(userID, username, color, time) {
+  constructor(userID, name, color, time) {
     this.id = userID
-    this.username = username
+    this.name = name
     this.color = color
     this.time = time
   }
@@ -24,7 +24,7 @@ class Player {
 
   addTime(number) { this.time += number }
 
-  subtractTime(number) { this.time -= number}
+  subtractTime(number) { this.time -= number }
 
   setTime(newTime) { this.time = newTime }
 

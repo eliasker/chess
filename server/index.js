@@ -148,7 +148,7 @@ io.on('connection', socket => {
     if (!games[gameID]) return
     games[gameID].connections.add(socket.id)
     if (isPlayer) {
-      const newPlayer = new Player(user.userID, user.username,
+      const newPlayer = new Player(user.id, user.name,
         games[gameID].host.color === 'white' ? 'black' : 'white',
         games[gameID].time)
       games[gameID].player = newPlayer

@@ -27,9 +27,9 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const [p2Timer, setP2Timer] = useState('')
 
   const isMyTurn = () => {
-    if (user.userID === selectedGame.host.id) {
+    if (user.id === selectedGame.host.id) {
       return selectedGame.host.color[0] === game.turn()
-    } else if (user.userID === selectedGame.player.id) {
+    } else if (user.id === selectedGame.player.id) {
       return selectedGame.player.color[0] === game.turn()
     }
     return false
@@ -91,7 +91,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   }, [status])
 
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen, user.userID)
+    emitState(selectedGame.id, fen, user.id)
   }
 
   const handleReset = (rematch) => {
@@ -110,26 +110,26 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
       broadcastFen(game.fen())
       if (game.game_over()) {
         if (game.in_draw()) {
-          emitEnd(selectedGame.id, user.userID, 'draw')
+          emitEnd(selectedGame.id, user.id, 'draw')
         } else {
-          emitEnd(selectedGame.id, user.userID, 'win')
+          emitEnd(selectedGame.id, user.id, 'win')
         }
       }
     }
   }
 
   const leaveGame = () => {
-    emitLeave(user.userID, selectedGame.id)
+    emitLeave(user.id, selectedGame.id)
     setSelectedGame(initialGameroom)
   }
 
-  const imPlayer = () => selectedGame.player.id === user.userID
-  const imHost = () => selectedGame.host.id === user.userID
+  const imPlayer = () => selectedGame.player.id === user.id
+  const imHost = () => selectedGame.host.id === user.id
 
   const handleSurrender = () => {
     if (game.fen() === fen.startingPosition && !game.game_over()) return
     if ((imHost() || imPlayer()) && selectedGame.winner === null) {
-      emitEnd(selectedGame.id, user.userID, 'loss')
+      emitEnd(selectedGame.id, user.id, 'loss')
     }
   }
 

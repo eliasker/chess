@@ -24,7 +24,7 @@ const CreateGame = () => {
   const handleCreate = async () => {
     const newHost = {
       ...initialPlayer,
-      id: user.userID,
+      id: user.id,
       time: isNaN(time) ? null : 60000 * +time,
       username: user.username,
       color: selectedColor === 'random' ?
