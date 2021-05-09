@@ -11,22 +11,33 @@ import Status from './Status'
 
 const game = new Chess()
 
+const msToTimeStr = (milliseconds) => {
+  const minutes = Math.floor((milliseconds) / 60000)
+  const seconds = (((milliseconds) % 60000) / 1000).toFixed(0)
+  const minStr = minutes < 10 ? `0${minutes}` : `${minutes}`
+  const secStr = seconds < 10 ? `0${seconds}` : `${seconds}`
+  return `${minStr}:${secStr}`
+}
+
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
   const [status, setStatus] = useState({})
 
   const isMyTurn = () => {
-    if (user.userID === selectedGame.host.id) {
-      return selectedGame.host.color.split('')[0] === game.turn()
-    } else if (user.userID === selectedGame.player.id) {
-      return selectedGame.player.color.split('')[0] === game.turn()
+    if (user.id === selectedGame.host.id) {
+      return selectedGame.host.color[0] === game.turn()
+    } else if (user.id === selectedGame.player.id) {
+      return selectedGame.player.color[0] === game.turn()
     }
     return false
   }
 
   const updateStatus = () => {
     return {
+      player1: imPlayer() ? selectedGame.host : selectedGame.player,
+      player2: imPlayer() ? selectedGame.player : selectedGame.host,
+      started: (selectedGame.player.id !== null && !game.game_over()),
       isMyTurn: isMyTurn(),
       turn: game.turn(),
       over: game.game_over(),
@@ -49,7 +60,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   }, [selectedGame])
 
   const broadcastFen = fen => {
-    emitState(selectedGame.id, fen)
+    emitState(selectedGame.id, fen, user.id)
   }
 
   const handleReset = (rematch) => {
@@ -63,31 +74,31 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
     if (selectedGame.player.id === null || selectedGame.host.id === null) {
       setErrorMessage('Wait for opponent or play as opponent from another window')
     }
-    else if (isMyTurn() && game.move(move)) {
+    else if (status.isMyTurn && game.move(move)) {
       setPosition(game.fen())
       broadcastFen(game.fen())
       if (game.game_over()) {
         if (game.in_draw()) {
-          emitEnd(selectedGame.id, user.userID, 'draw')
+          emitEnd(selectedGame.id, user.id, 'draw')
         } else {
-          emitEnd(selectedGame.id, user.userID, 'win')
+          emitEnd(selectedGame.id, user.id, 'win')
         }
       }
     }
   }
 
   const leaveGame = () => {
-    emitLeave(user.userID, selectedGame.id)
+    emitLeave(user.id, selectedGame.id)
     setSelectedGame(initialGameroom)
   }
 
-  const imPlayer = () => selectedGame.player.id === user.userID
-  const imHost = () => selectedGame.host.id === user.userID
+  const imPlayer = () => selectedGame.player.id === user.id
+  const imHost = () => selectedGame.host.id === user.id
 
   const handleSurrender = () => {
     if (game.fen() === fen.startingPosition && !game.game_over()) return
     if ((imHost() || imPlayer()) && selectedGame.winner === null) {
-      emitEnd(selectedGame.id, user.userID, 'loss')
+      emitEnd(selectedGame.id, user.id, 'loss')
     }
   }
 
@@ -100,10 +111,17 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
             <p>{`Game#${selectedGame.id.slice(0, 4)}`}</p>
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton disable={false} description='Leave game?' buttonName='Leave game' acceptFunction={leaveGame} />
+              ? <ConfirmButton
+                disable={false}
+                description='Leave game?'
+                buttonName='Leave game'
+                acceptFunction={leaveGame} />
               : null}
 
-            <Player player={imPlayer() ? selectedGame.host : selectedGame.player} />
+            <Player
+              player={status.player1}
+              timer={msToTimeStr(status.player1.time)}
+            />
             <Chessboard
               width={400} position={position}
               orientation={imHost() ?
@@ -115,10 +133,15 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                   promotion: 'q'
                 })}
             />
-            <Player player={imPlayer() ? selectedGame.player : selectedGame.host} />
+            <Player
+              player={status.player2}
+              timer={msToTimeStr(status.player2.time)}
+            />
 
             {(imHost() || imPlayer())
-              ? <ConfirmButton disable={position === fen.startingPosition} description='Surrender?' buttonName='Surrender' acceptFunction={handleSurrender} />
+              ? <ConfirmButton disable={position === fen.startingPosition}
+                description='Surrender?' buttonName='Surrender'
+                acceptFunction={handleSurrender} />
               : null}
             <Status status={status} />
             <GameOver game={selectedGame} user={user} handleReset={handleReset} />

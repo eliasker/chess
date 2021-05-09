@@ -23,7 +23,7 @@ const SocketHook = (userID, username, setErrorMessage) => {
    */
   useEffect(() => {
     socket.current = process.env.NODE_ENV === 'development' ? socketIOClient(ENDPOINT) : socketIOClient()
-    socket.current.emit('join server', { userID: userID, username: username })
+    socket.current.emit('join server', { id: userID, name: username })
 
     socket.current.on('update users', newUserList => {
       setConnectedUsers(newUserList)
@@ -65,8 +65,8 @@ const SocketHook = (userID, username, setErrorMessage) => {
   /**
    * Functions that send events to the server
    */
-  const emitState = (gameID, newState) => {
-    socket.current.emit('move', gameID, newState)
+  const emitState = (gameID, newState, userID) => {
+    socket.current.emit('move', gameID, newState, userID)
   }
 
   const emitJoin = (user, gameID, isPlayer) => {

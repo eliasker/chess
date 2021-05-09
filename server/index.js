@@ -6,16 +6,54 @@ const io = require('socket.io')(http, { cors: { origin: "*" } })
 const PORT = process.env.PORT || 3001
 
 const { Player } = require('./src/Player')
-
-const games = {}
+const { GameManager } = require('./src/GameManager')
+const manager = new GameManager()
 const connectedUsers = {}
+let serverInterval = null
 
 /**
  * When client connects to the server 'connection' event is fired
  * Users are added to connectedUsers using the sockets id as key
  */
 io.on('connection', socket => {
-  socket.emit('update games', games)
+
+  socket.emit('update games', manager.getListOfGames())
+
+  /**
+   * Function that updates timers in each game once per interval
+   * If there are no games the interval is cleared
+   * Timers are only updated if game uses them
+   * If player runs out of time the manager marks that player as loser
+   * Then updated game is sent to each connected socket
+   */
+  const updateGameTimes = () => {
+    const numberOfGames = manager.getListOfGames().length
+    if (numberOfGames === 0) {
+      clearInterval(serverInterval)
+    } else {
+      const games = manager.getListOfGames()
+
+      games.forEach(game => {
+        if (game.time !== null && game.winner === null && game.player.id !== null) {
+          const playerInTurn = game.turn === game.host.color[0] ? game.host : game.player
+
+          if (playerInTurn.time > 0) {
+            playerInTurn.subtractTime(1000)
+          } else {
+            manager.handleGameOver(playerInTurn.id, game.id, 'loss')
+          }
+
+          for (let socketID of game.connections) {
+            io.to(socketID).emit('game update', game)
+          }
+        }
+      })
+    }
+  }
+
+
+  const startInterval = () => serverInterval = setInterval(updateGameTimes, 1000)
+  
 
   /**
    * If disconnected user hosted any games those games are terminated
@@ -24,12 +62,12 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     if (connectedUsers[socket.id]?.hosts.size > 0) {
       for (let gameID of connectedUsers[socket.id].hosts) {
-        delete games[gameID]
+        manager.removeGame(gameID)
       }
     }
     delete connectedUsers[socket.id]
     io.emit('update users', connectedUsers)
-    io.emit('update games', games)
+    io.emit('update games', manager.getListOfGames())
   })
 
   /**
@@ -47,8 +85,9 @@ io.on('connection', socket => {
    * Server limits game creation per user to 3
    * @param {newGameRoom} newGameRoom - object that has default chessboard position hosts data
    * Host is replaced with a Player object that has same id and color
-   * newGameRoom is added to games which is then sent to everyone
    * @callback callback - currently sends back boolean that tells client if room was accepted
+   * 
+   * When first game is created the server starts a interval that updates timers in each game
    */
   socket.on('create game', (newGameRoom, callback) => {
     if (connectedUsers[socket.id]?.hosts.size > 2) {
@@ -58,108 +97,68 @@ io.on('connection', socket => {
       })
     } else if (connectedUsers[socket.id]) {
       newGameRoom.connections = new Set([socket.id])
-      games[newGameRoom.id] = newGameRoom
       newGameRoom.host = new Player(
         newGameRoom.host.id,
-        newGameRoom.host.username,
-        newGameRoom.host.color
+        newGameRoom.host.name,
+        newGameRoom.host.color,
+        newGameRoom.host.time
       )
       connectedUsers[socket.id]?.hosts.add(newGameRoom.id)
+
+      manager.addGame(newGameRoom)
+
       callback({
         successful: true,
         message: 'ok'
       })
-      io.emit('update games', games)
+
+      if (manager.getListOfGames().length === 1) startInterval()
+
+      io.emit('update games', manager.getListOfGames())
     }
   })
 
   /**
-   * Event that is sent when user joins to game
-   * @param {boolean} isPlayer - player or spectator 
-   * If isPlayer is true a new Player object is created and added as player to the game
-   * (Only host and player can play game and only single user can join as a player)
-   * Socket is added to games connections for listening events
+   * Event that is sent when user joins to a game
+   * @param {boolean} joinAsPlayer - player or spectator 
+   * Manager adds user to the game
    * Updated games is sent to everyone 
    */
-  socket.on('join game', (user, gameID, isPlayer) => {
-    if (!games[gameID]) return
-    games[gameID].connections.add(socket.id)
-    if (isPlayer) {
-      const newPlayer = new Player(user.userID, user.username,
-        games[gameID].host.color === "white" ? "black" : "white")
-      games[gameID].player = newPlayer
-    }
-    io.emit('game update', games[gameID])
-    io.emit('update games', games)
+  socket.on('join game', (user, gameID, joinAsPlayer) => {
+    manager.addUser(user, socket.id, gameID, joinAsPlayer)
+    io.emit('game update', manager.getGameByID(gameID))
+    io.emit('update games', manager.getListOfGames())
   })
 
   /**
-   * If user is player then default player is put into leavers place
-   * Else if user is host then game is terminated
+   * Manager removes user from game
+   * Game is removed from userlists 'this player hosts these games' -list
    * TODO: if host leaves send 'game closed: host left' -notification
    */
   socket.on('leave game', (userID, gameID) => {
-    if (!games[gameID]) return
-
-    games[gameID].connections.delete(socket.id)
-    if (userID === games[gameID].player.id) {
-      games[gameID].player = {
-        time: 0,
-        score: 0,
-        id: null,
-        color: ""
-      }
-    } else if (userID === games[gameID].host.id) {
-      connectedUsers[socket.id]?.hosts.delete(gameID)
-      delete games[gameID]
-    }
-
-    io.emit('update games', games)
-    io.emit('game update', games[gameID])
+    manager.removeUser(userID, gameID, socket.id)
+    connectedUsers[socket.id]?.hosts.delete(gameID)
+    io.emit('update games', manager.getListOfGames())
+    io.emit('game update', manager.getGameByID(gameID))
   })
 
   /**
-   * Server receives this event after a game ending move has been played
-   * Updates player scores. Winner gets 1 and in case of a draw both players get 0.5
+   * Server receives this event after a game ends
+   * manager updates game by adding score and setting the 'game over status'
    * @param {string} playerID - player who played the move
    * @param {string} result -  did player win, draw or lose
    */
   socket.on('game over', (gameID, playerID, result) => {
-    const isHost = () => games[gameID].host.id === playerID
-    const game = games[gameID]
-    switch (result) {
-      case 'win':
-        isHost() ? game.host.addScore(1) : game.player.addScore(1)
-        game.winner = isHost() ? game.host.username : game.player.username
-        break;
-
-      case 'draw':
-        game.host.addScore(0.5)
-        game.player.addScore(0.5)
-        game.winner = 'draw'
-        break;
-
-      case 'loss':
-        isHost() ? game.player.addScore(1) : game.host.addScore(1)
-        game.winner = isHost() ? game.player.username : game.host.username
-        break;
-
-      default:
-        break;
-    }
-
-    io.emit('game update', games[gameID])
-    io.emit('update games', games)
+    manager.handleGameOver(playerID, gameID, result)
+    io.emit('game update', manager.getGameByID(gameID))
   })
 
   /**
-   * Change colors, reset winner status
+   * Player starts a new game
    */
   socket.on('new game', (gameID) => {
-    games[gameID].host.changeColor()
-    games[gameID].player.changeColor()
-    games[gameID].winner = null
-    io.emit('game update', games[gameID])
+    manager.restartGame(gameID)
+    io.emit('game update', manager.getListOfGames())
   })
 
   /** 
@@ -167,13 +166,13 @@ io.on('connection', socket => {
    * @param {string} newState - describes where pieces are on board
    * Every client that is connected receives updated game
    */
-  socket.on('move', (gameID, newState) => {
-    if (games[gameID] === undefined) return
-    games[gameID] = { ...games[gameID], state: newState }
-    for (let socketID of games[gameID].connections) {
-      io.to(socketID).emit('game update', games[gameID])
+  socket.on('move', (gameID, newState, userID) => {
+    manager.updateBoardState(userID, gameID, newState)
+    const game = manager.getGameByID(gameID)
+    for (let socketID of game.connections) {
+      io.to(socketID).emit('game update', game)
     }
-    io.emit('update games', games)
+    io.emit('update games', manager.getListOfGames())
   })
 })
 

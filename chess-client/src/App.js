@@ -9,7 +9,7 @@ import SocketHook from './service/SocketHook'
 import { initialGameroom } from './Constants'
 import ErrorMessage from './components/ErrorMessage'
 const id = uuidv4()
-const user = { userID: id, username: `Guest#${id.slice(0, 4)}` }
+const user = { id: id, name: `Guest#${id.slice(0, 4)}` }
 
 const App = () => {
   const [selectedGame, setSelectedGame] = useState(initialGameroom)
@@ -25,7 +25,7 @@ const App = () => {
     emitRematch,
     emitLeave,
     emitEnd
-  } = SocketHook(user.userID, user.username, setErrorMessage)
+  } = SocketHook(user.id, user.name, setErrorMessage)
 
   useEffect(() => {
     try {
@@ -33,7 +33,7 @@ const App = () => {
         setSelectedGame(gameUpdate)
       }
     } catch (e) { }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameUpdate])
 
   return (
@@ -41,7 +41,7 @@ const App = () => {
       <div className='grid-container'>
         <div className='icon' />
         <div className='user'>
-          <p>logged in as {user.username}</p>
+          <p>logged in as {user.name}</p>
           <p>players online: {Object.keys(connectedUsers).length}</p>
         </div>
 
