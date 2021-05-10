@@ -11,14 +11,6 @@ import Status from './Status'
 
 const game = new Chess()
 
-const msToTimeStr = (milliseconds) => {
-  const minutes = Math.floor((milliseconds) / 60000)
-  const seconds = (((milliseconds) % 60000) / 1000).toFixed(0)
-  const minStr = minutes < 10 ? `0${minutes}` : `${minutes}`
-  const secStr = seconds < 10 ? `0${seconds}` : `${seconds}`
-  return `${minStr}:${secStr}`
-}
-
 const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
   const { user, setSelectedGame, emitRematch, setErrorMessage } = useContext(Context)
   const [position, setPosition] = useState(fen.startingPosition)
@@ -118,10 +110,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                 acceptFunction={leaveGame} />
               : null}
 
-            <Player
-              player={status.player1}
-              timer={msToTimeStr(status.player1.time)}
-            />
+            <Player player={status.player1} gameTime={selectedGame.time} />
             <Chessboard
               width={400} position={position}
               orientation={imHost() ?
@@ -133,10 +122,7 @@ const Game = ({ selectedGame, emitState, emitLeave, emitEnd }) => {
                   promotion: 'q'
                 })}
             />
-            <Player
-              player={status.player2}
-              timer={msToTimeStr(status.player2.time)}
-            />
+            <Player player={status.player2} gameTime={selectedGame.time} />
 
             {(imHost() || imPlayer())
               ? <ConfirmButton disable={position === fen.startingPosition}
